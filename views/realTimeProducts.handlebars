@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de productos en tiempo real</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        socket.on('productsUpdate', function (products) {
+            // Lógica para actualizar la lista de productos
+            console.log('Lista de productos actualizada:', products);
+            var productList = document.getElementById('productList');
+            productList.innerHTML = ''; // Limpiar la lista existente
+            products.forEach(function (product) {
+                var li = document.createElement('li');
+                li.innerHTML = `
+                    <h2>${product.title}</h2>
+                    <p>${product.description}</p>
+                    <p>Código: ${product.code}</p>
+                    <p>Precio: ${product.price}</p>
+                    <p>Stock: ${product.stock}</p>
+                `;
+                productList.appendChild(li);
+            });
+        });
+
+        function createProduct(event) {
+            event.preventDefault(); // Evita que el formulario se envíe a través de HTTP
+
+            // Obtener los valores de los campos del formulario
+            var title = document.getElementById('title').value;
+            var description = document.getElementById('description').value;
+            var code = document.getElementById('code').value;
+            var price = document.getElementById('price').value;
+            var stock = document.getElementById('stock').value;
+            var category = document.getElementById('category').value;
+
+            // Crear un objeto con los datos del nuevo producto
+            var newProduct = {
+                title: title,
+                description: description,
+                code: code,
+                price: price,
+                stock: stock,
+                category: category
+            };
+
+            // Enviar el objeto newProduct al servidor a través de websockets
+            socket.emit('createProduct', newProduct);
+
+            // Limpiar los campos del formulario
+            document.getElementById('title').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('code').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('stock').value = '';
+            document.getElementById('category').value = '';
+        }
+    </script>
+</head>
+<body>
+    <h1>Lista de productos en tiempo real</h1>
+    <ul id="productList">
+        {{#each products}}
+        <li>
+            <h2>{{title}}</h2>
+            <p>{{description}}</p>
+            <p>Código: {{code}}</p>
+            <p>Precio: {{price}}</p>
+            <p>Stock: {{stock}}</p>
+        </li>
+        {{/each}}
+    </ul>
+
+    <h2>Create New Product:</h2>
+    <form onsubmit="createProduct(event)">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+        <br>
+        <label for="description">Description:</label>
+        <input type="text" id="description" name="description" required>
+        <br>
+        <label for="code">Code:</label>
+        <input type="text" id="code" name="code" required>
+        <br>
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" step="0.01" required>
+        <br>
+        <label for="stock">Stock:</label>
+        <input type="number" id="stock" name="stock" required>
+        <br>
+        <label for="category">Category:</label>
+        <input type="text" id="category" name="category">
+        <br>
+        <button type="submit">Create Product</button>
+    </form>
+</body>
+</html>

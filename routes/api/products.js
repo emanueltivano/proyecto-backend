@@ -4,6 +4,10 @@ const router = express.Router();
 
 const productsFilePath = './data/products.json';
 
+const sendRealTimeProductsUpdate = (io, products) => {
+    io.emit('productsUpdate', products);
+};
+
 const generateId = (items) => {
     const ids = items.map((i) => i.id);
     return ids.length ? Math.max(...ids) + 1 : 1;
@@ -26,7 +30,7 @@ const saveItemsToFile = (items, filePath) => {
 
 const errorHandler = (err, req, res, next) => {
     res.status(err.status || 500).json({ status: err.status || 500, response: err.message });
-}
+};
 
 router.use(express.json());
 
@@ -63,6 +67,7 @@ router.post('/', (req, res, next) => {
         category: req.body.category,
         thumbnails: req.body.thumbnails || [],
     };
+
     if (!newProduct.title || !newProduct.description || !newProduct.code || !newProduct.price || !newProduct.stock || !newProduct.category) {
         errorHandler({ status: 400, message: 'All fields are required.' }, req, res, next);
     } else {
@@ -73,6 +78,7 @@ router.post('/', (req, res, next) => {
         } else {
             products.push(newProduct);
             saveItemsToFile(products, productsFilePath);
+            sendRealTimeProductsUpdate(req.io, products);
             res.status(201).json({ status: 201, response: products });
         }
     }
@@ -114,10 +120,17 @@ router.delete('/:pid', (req, res, next) => {
         const product = products[index];
         products.splice(index, 1);
         saveItemsToFile(products, productsFilePath);
+        sendRealTimeProductsUpdate(req.io, products);
         res.json({ status: 200, response: products });
     } else {
         errorHandler({ status: 404, message: (`Product with id ${pid} not found`) }, req, res, next);
     }
 });
 
-module.exports = router
+module.exports = router;
+module.exports = {
+    readItemsFromFile,
+    generateId,
+    errorHandler,
+    saveItemsToFile
+};
