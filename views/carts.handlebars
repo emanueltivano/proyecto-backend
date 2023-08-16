@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cart Details</title>
+</head>
+
+<body>
+    <h2>Cart Information</h2>
+    <p>Cart ID: {{ cart._id }}</p>
+    <h3>Products:</h3>
+    <ul>
+        {{#each cart.products}}
+        <li>
+            Product ID: {{ this.product._id }}
+            <br>
+            Product Units: {{ this.units }}
+        </li>
+        {{/each}}
+    </ul>
+</body>
+
+</html>

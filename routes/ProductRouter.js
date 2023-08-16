@@ -1,15 +1,55 @@
 const express = require('express');
 const router = express.Router();
-const { sendRealTimeProductsUpdate } = require('../utils');
 const ProductManager = require('../dao/mongodb/ProductManager');
 
+// Función para calcular el total de páginas
+const calculateTotalPages = (totalCount, limit) => Math.ceil(totalCount / limit);
+
 router.get('/', async (req, res) => {
-    const { limit } = req.query;
+    const { limit = 10, page = 1, sort, query } = req.query;
+
+    const filters = {};
+    if (query) {
+        // Agregar filtro por categoría o disponibilidad aquí
+        filters.$or = [
+            { category: query },
+            { status: query === 'available' ? true : false }
+        ];
+    }
+
+    const sortOptions = {};
+    if (sort === 'asc') {
+        sortOptions.price = 1;
+    } else if (sort === 'desc') {
+        sortOptions.price = -1;
+    }
+
     try {
-        const products = await ProductManager.getAllProducts(limit);
-        res.json({ status: 200, response: products });
+        const totalCount = await ProductManager.countProducts(filters);
+        const totalPages = calculateTotalPages(totalCount, limit);
+
+        const skip = (page - 1) * limit;
+        const products = await ProductManager.getProducts(filters, sortOptions, limit, skip);
+
+        const prevLink = page > 1 ? `/api/products?limit=${limit}&page=${parseInt(page) - 1}&sort=${sort}` : null;
+        const nextLink = page < totalPages ? `/api/products?limit=${limit}&page=${parseInt(page) + 1}&sort=${sort}` : null;
+
+        const response = {
+            status: 'success',
+            payload: products,
+            totalPages,
+            prevPage: page > 1 ? parseInt(page) - 1 : null,
+            nextPage: page < totalPages ? parseInt(page) + 1 : null,
+            page,
+            hasPrevPage: page > 1,
+            hasNextPage: page < totalPages,
+            prevLink,
+            nextLink,
+        };
+
+        res.json(response);
     } catch (error) {
-        res.status(500).json({ status: 500, response: error.message });
+        res.status(500).json({ status: 'error', response: error.message });
     }
 });
 
