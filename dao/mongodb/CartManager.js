@@ -34,7 +34,7 @@ const addProductToCart = async (cid, pid) => {
     if (existingProduct) {
       existingProduct.units += 1;
     } else {
-      const newProduct = { product: pid, units: 1 }; // No se necesita parseInt aquí
+      const newProduct = { product: pid, units: 1 };
       cart.products.push(newProduct);
     }
 
