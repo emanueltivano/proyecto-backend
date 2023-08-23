@@ -5,34 +5,17 @@ const ProductManager = require('../dao/mongodb/ProductManager');
 const CartManager = require('../dao/mongodb/CartManager');
 const ProductRouter = require('./ProductRouter');
 const CartRouter = require('./CartRouter');
+const SessionRouter = require('./SessionRouter');
 const { calculateTotalPages, getPaginatedProducts } = require('../dao/mongodb/ProductManager');
 
+router.use('/', SessionRouter);
 router.use('/api/products', ProductRouter);
 router.use('/api/carts', CartRouter);
 
-router.get('/', async (req, res) => {
-  try {
-    const products = await ProductManager.getAllProducts();
-    const productsData = products.map((product) => product.toObject());
-    res.render('home', { products: productsData });
-  } catch (error) {
-    res.status(500).send('Error retrieving products from database.');
-  }
-});
+const authMiddleware = require('../authMiddleware');
 
-router.get('/chat', (req, res) => {
-  res.render('chat');
-});
-
-router.get('/realtimeproducts', async (req, res) => {
-  try {
-    const products = await ProductManager.getAllProducts();
-    const productsData = products.map((product) => product.toObject());
-    const newProduct = {}; // Crear un objeto vacío para newProduct
-    res.render('realTimeProducts', { products: productsData, newProduct }); // Agregar newProduct al contexto
-  } catch (error) {
-    res.status(500).json({ status: 500, response: error.message });
-  }
+router.get('/', (req, res) => {
+  res.redirect('/login'); // Redirige a la página de inicio de sesión
 });
 
 router.post('/api/products', async (req, res, next) => {
@@ -47,7 +30,7 @@ router.post('/api/products', async (req, res, next) => {
 });
 
 // Ruta para mostrar la vista de productos con paginación
-router.get('/products', async (req, res) => {
+router.get('/products', authMiddleware, async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query } = req.query;
 
@@ -74,6 +57,7 @@ router.get('/products', async (req, res) => {
       : null;
 
     res.render('products', {
+      user: req.session.user, // Pasar el usuario autenticado a la vista
       products: productsResponse.products,
       prevLink: prevLink,
       nextLink: nextLink,
@@ -92,6 +76,26 @@ router.get('/carts/:cid', async (req, res) => {
   } catch (error) {
     res.status(404).send('Cart not found.');
   }
+});
+
+router.get('/chat', authMiddleware, (req, res) => {
+  res.render('chat');
+});
+
+router.get('/realtimeproducts', authMiddleware, async (req, res) => {
+  try {
+    const products = await ProductManager.getAllProducts();
+    const productsData = products.map((product) => product.toObject());
+    const newProduct = {}; // Crear un objeto vacío para newProduct
+    res.render('realTimeProducts', { products: productsData, newProduct }); // Agregar newProduct al contexto
+  } catch (error) {
+    res.status(500).json({ status: 500, response: error.message });
+  }
+});
+
+router.get('/profile', authMiddleware, (req, res) => {
+  const user = req.session.user;
+  res.render('profile', { user });
 });
 
 module.exports = router;

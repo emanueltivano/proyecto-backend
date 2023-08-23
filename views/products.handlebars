@@ -1,12 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Lista de Productos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio</title>
 </head>
 
 <body>
-    <h1>Lista de Productos</h1>
+    <h1>¡Bienvenido, {{user.first_name}}!</h1>
+    <a href="/profile">Mi perfil</a>
+
+    <a href="/logout">Cerrar sesión</a> 
+    <br>
+    <h2>Listado de productos:</h2>
 
     <ul>
         {{#each products}}

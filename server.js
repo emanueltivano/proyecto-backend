@@ -3,6 +3,8 @@ const exphbs = require('express-handlebars');
 const http = require('http');
 const socketIO = require('socket.io');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const ProductModel = require('./dao/models/ProductModel');
 const MessageModel = require('./dao/models/MessageModel');
 const CartModel = require('./dao/models/CartModel');
@@ -16,6 +18,22 @@ const io = socketIO(server);
 const hbs = exphbs.create({
   defaultLayout: 'main',
 });
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+app.use(session({
+  store: MongoStore.create({
+    mongoUrl: 'mongodb+srv://EmanuelTivano:gCjV9pq7ckS0rQmx@cluster1.bwre0nz.mongodb.net/ecommerce?retryWrites=true&w=majority',
+    mongoOptions: {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+  }),
+  secret: 'secretSession',
+  resave: true,
+  saveUninitialized: true,
+}));
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
