@@ -9,10 +9,18 @@ const ProductModel = require('./dao/models/ProductModel');
 const MessageModel = require('./dao/models/MessageModel');
 const CartModel = require('./dao/models/CartModel');
 const socketMiddleware = require('./socketMiddleware');
+const passport = require('passport');
+const initializePassport = require('./config/passport.config.js');
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
+
+initializePassport()
+app.use(session({
+  secret: "CoderSecrets"
+}));
+app.use(passport.initialize());
 
 // Configuración de Handlebars
 const hbs = exphbs.create({

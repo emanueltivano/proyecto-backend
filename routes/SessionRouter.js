@@ -1,5 +1,7 @@
 const express = require('express');
 const UserModel = require('../dao/models/UserModel');
+const bcrypt = require('bcrypt');
+const passport = require('passport');
 
 const router = express.Router();
 
@@ -9,12 +11,14 @@ router.get('/register', (req, res) => {
 
 router.post('/register', async (req, res) => {
     const { first_name, last_name, email, age, password } = req.body;
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     const userData = {
         first_name,
         last_name,
         email,
         age,
-        password,
+        password: hashedPassword,
         role: 'usuario',
         admin: false
     };
@@ -40,7 +44,7 @@ router.post('/login', async (req, res) => {
     try {
         const user = await UserModel.findOne({ email });
 
-        if (!user || user.password !== password) {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             res.status(401).json({ error: 'Credenciales incorrectas' });
             return;
         }
@@ -70,6 +74,13 @@ router.get('/profile', (req, res) => {
 router.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/login'); // Redirigir al inicio de sesión después de cerrar sesión
+});
+
+router.get('/api/sessions/github', passport.authenticate('github', {scope:['user:email']}), async(req,res)=>{});
+
+router.get('/api/sessions/githubcallback', passport.authenticate('github', {failureRedirect: '/login'}), async(req,res)=>{
+    req.session.user = req.user;
+    res.redirect('/products')
 });
 
 module.exports = router;
