@@ -9,17 +9,16 @@ const userSchema = new Schema({
     },
     age: Number,
     password: String,
-    role: {
-      type: String,
-      enum: ['usuario', 'administrador'],
-      default: 'usuario'
+    cart: {
+        type: Schema.Types.ObjectId,
+        ref: 'Cart'
     },
-    admin: {
-      type: Boolean,
-      default: false
+    role: {
+        type: String,
+        default: 'user'
     }
 }, {
     versionKey: false
 });
 
-module.exports = model('users', userSchema);
+module.exports = model('User', userSchema);

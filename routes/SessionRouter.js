@@ -1,9 +1,12 @@
 const express = require('express');
-const UserModel = require('../dao/models/UserModel');
-const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const UserModel = require("../dao/models/UserModel");
 const passport = require('passport');
+const cookieParser = require("cookie-parser");
 
 const router = express.Router();
+router.use(cookieParser());
 
 router.get('/register', (req, res) => {
     res.render('register'); // Renderizar la vista de registro
@@ -39,14 +42,14 @@ router.get('/login', (req, res) => {
     res.render('login'); // Renderizar la vista de inicio de sesión
 });
 
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
     const { email, password } = req.body;
+
     try {
         const user = await UserModel.findOne({ email });
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            res.status(401).json({ error: 'Credenciales incorrectas' });
-            return;
+            return res.status(401).json({ error: "Credenciales incorrectas" });
         }
 
         if (email === 'adminCoder@coder.com' && password === 'adminCod3r123') {
@@ -55,10 +58,30 @@ router.post('/login', async (req, res) => {
             await user.save();
         }
 
-        req.session.user = user; // Iniciar sesión para el usuario
-        res.redirect('/products'); // Redirigir al perfil del usuario
+        // Crea un token JWT
+        const token = jwt.sign({ id: user._id }, "ClaveSecretaJWT", {
+            expiresIn: "1h",
+        });
+
+        // Establece el token JWT como una cookie
+        res.cookie("jwt", token, { httpOnly: true });
+
+        // Redirige al usuario a /api/sessions/current
+        res.redirect('/api/sessions/current');
     } catch (error) {
-        res.status(400).json({ error: 'Error al iniciar sesión' });
+        res.status(500).json({ error: "Error al iniciar sesión" });
+    }
+});
+
+router.get("/api/sessions/current", passport.authenticate("jwt", { session: false }), (req, res) => {
+    const user = req.user;
+    
+    if (user) {
+        // Devuelve los datos del usuario
+        res.json(user);
+    } else {
+        // Maneja el caso en que el usuario no esté autenticado
+        res.status(401).json({ error: "No autorizado" });
     }
 });
 
@@ -76,9 +99,9 @@ router.get('/logout', (req, res) => {
     res.redirect('/login'); // Redirigir al inicio de sesión después de cerrar sesión
 });
 
-router.get('/api/sessions/github', passport.authenticate('github', {scope:['user:email']}), async(req,res)=>{});
+router.get('/api/sessions/github', passport.authenticate('github', { scope: ['user:email'] }), async (req, res) => { });
 
-router.get('/api/sessions/githubcallback', passport.authenticate('github', {failureRedirect: '/login'}), async(req,res)=>{
+router.get('/api/sessions/githubcallback', passport.authenticate('github', { failureRedirect: '/login' }), async (req, res) => {
     req.session.user = req.user;
     res.redirect('/products')
 });

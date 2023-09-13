@@ -1,4 +1,8 @@
 const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
+const bcrypt = require("bcrypt");
 const GitHubStrategy = require("passport-github2");
 const UserModel = require("../dao/models/UserModel");
 
@@ -28,6 +32,48 @@ const initializePassport = () => {
             return done(error);
         }
     }));
+
+    // Configuración de la estrategia local
+    passport.use(
+        new LocalStrategy(
+            { usernameField: "email" },
+            async (email, password, done) => {
+                try {
+                    const user = await UserModel.findOne({ email });
+
+                    if (!user || !(await bcrypt.compare(password, user.password))) {
+                        return done(null, false, { message: "Credenciales incorrectas" });
+                    }
+
+                    return done(null, user);
+                } catch (error) {
+                    return done(error);
+                }
+            }
+        )
+    );
+
+    // Configuración de la estrategia de JWT
+    const jwtOptions = {
+        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+        secretOrKey: "ClaveSecretaJWT",
+    };
+
+    passport.use(
+        new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
+            try {
+                const user = await UserModel.findById(jwtPayload.id);
+
+                if (!user) {
+                    return done(null, false, { message: "Usuario no encontrado" });
+                }
+
+                return done(null, user);
+            } catch (error) {
+                return done(error);
+            }
+        })
+    );
 
     // Función de serialización
     passport.serializeUser((user, done) => {
