@@ -73,16 +73,31 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get("/api/sessions/current", passport.authenticate("jwt", { session: false }), (req, res) => {
-    const user = req.user;
-    
-    if (user) {
-        // Devuelve los datos del usuario
-        res.json(user);
-    } else {
-        // Maneja el caso en que el usuario no esté autenticado
-        res.status(401).json({ error: "No autorizado" });
+router.get("/api/sessions/current", (req, res) => {
+    const token = req.cookies.jwt;
+
+    if (!token) {
+        return res.status(401).json({ error: "No autorizado" });
     }
+
+    jwt.verify(token, "ClaveSecretaJWT", async (err, decodedToken) => {
+        if (err) {
+            return res.status(401).json({ error: "No autorizado" });
+        }
+
+        try {
+            const user = await UserModel.findById(decodedToken.id);
+
+            if (!user) {
+                return res.status(401).json({ error: "No autorizado" });
+            }
+
+            // Devuelve los datos del usuario
+            res.json(user);
+        } catch (error) {
+            res.status(500).json({ error: "Error al obtener los datos del usuario" });
+        }
+    });
 });
 
 router.get('/profile', (req, res) => {
