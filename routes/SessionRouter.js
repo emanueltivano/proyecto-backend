@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const UserModel = require("../dao/models/UserModel");
 const passport = require('passport');
 const cookieParser = require("cookie-parser");
+const config = require('../config/config');
 
 const router = express.Router();
 router.use(cookieParser());
@@ -25,7 +26,7 @@ router.post('/register', async (req, res) => {
         role: 'usuario',
         admin: false
     };
-    if (email === 'adminCoder@coder.com' && password === 'adminCod3r123') {
+    if (email === config.adminEmail && password === config.adminPassword) {
         userData.admin = true;
         userData.role = 'administrador';
     }
@@ -52,14 +53,14 @@ router.post("/login", async (req, res) => {
             return res.status(401).json({ error: "Credenciales incorrectas" });
         }
 
-        if (email === 'adminCoder@coder.com' && password === 'adminCod3r123') {
+        if (email === config.adminEmail && password === config.adminPassword) {
             user.admin = true;
             user.role = 'administrador';
             await user.save();
         }
 
         // Crea un token JWT
-        const token = jwt.sign({ id: user._id }, "ClaveSecretaJWT", {
+        const token = jwt.sign({ id: user._id }, config.secretKey, {
             expiresIn: "1h",
         });
 
@@ -80,7 +81,7 @@ router.get("/api/sessions/current", (req, res) => {
         return res.status(401).json({ error: "No autorizado" });
     }
 
-    jwt.verify(token, "ClaveSecretaJWT", async (err, decodedToken) => {
+    jwt.verify(token, config.secretKey, async (err, decodedToken) => {
         if (err) {
             return res.status(401).json({ error: "No autorizado" });
         }

@@ -5,12 +5,13 @@ const ExtractJwt = require("passport-jwt").ExtractJwt;
 const bcrypt = require("bcrypt");
 const GitHubStrategy = require("passport-github2");
 const UserModel = require("../dao/models/UserModel");
+const config = require('../config/config');
 
 const initializePassport = () => {
     passport.use('github', new GitHubStrategy({
-        clientID: 'Iv1.63c6dc8c2235c321',
-        clientSecret: '41b4f5b871b692b6592de6697ca9a5985493e036',
-        callbackURL: "http://localhost:8080/api/sessions/githubcallback"
+        clientID: config.githubId,
+        clientSecret: config.githubSecret,
+        callbackURL: config.callbackUrl
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             console.log(profile);
@@ -56,7 +57,7 @@ const initializePassport = () => {
     // Configuración de la estrategia de JWT
     const jwtOptions = {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: "ClaveSecretaJWT",
+        secretOrKey: config.secretKey,
     };
 
     passport.use(

@@ -3,7 +3,6 @@ const router = express.Router();
 const CartManager = require('../dao/mongodb/CartManager');
 const ProductManager = require('../dao/mongodb/ProductManager');
 
-
 router.get('/:cid', async (req, res, next) => {
   const { cid } = req.params;
   try {

@@ -10,6 +10,7 @@ const MessageModel = require('./dao/models/MessageModel');
 const CartModel = require('./dao/models/CartModel');
 const socketMiddleware = require('./socketMiddleware');
 const passport = require('passport');
+const config = require('./config/config');
 const initializePassport = require('./config/passport.config.js');
 
 const app = express();
@@ -32,7 +33,7 @@ app.use(express.json());
 
 app.use(session({
   store: MongoStore.create({
-    mongoUrl: 'mongodb+srv://EmanuelTivano:gCjV9pq7ckS0rQmx@cluster1.bwre0nz.mongodb.net/ecommerce?retryWrites=true&w=majority',
+    mongoUrl: config.mongoUrl,
     mongoOptions: {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -47,7 +48,7 @@ app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
 // Conexión a MongoDB
-mongoose.connect('mongodb+srv://EmanuelTivano:gCjV9pq7ckS0rQmx@cluster1.bwre0nz.mongodb.net/ecommerce?retryWrites=true&w=majority', {
+mongoose.connect(config.mongoUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
@@ -117,7 +118,6 @@ app.use('/api/messages', messageRouter);
 app.use('/api/carts', cartRouter);
 
 // Iniciar el servidor
-const port = process.env.PORT || 8080;
-server.listen(port, () => {
-  console.log(`Server started on port ${port}`);
+server.listen(config.port, () => {
+  console.log(`Server started on port ${config.port}`);
 });
