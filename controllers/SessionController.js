@@ -1,6 +1,8 @@
 const SessionManager = require('../dao/SessionManager');
 const UserModel = require('../models/UserModel');
 const passport = require('passport');
+const express = require('express');
+const session = require('express-session');
 const cookieParser = require("cookie-parser");
 
 const register = async (req, res) => {
@@ -14,7 +16,7 @@ const register = async (req, res) => {
       age,
       password,
     });
-    
+
     res.redirect('/login'); // Redirigir al perfil del usuario
   } catch (error) {
     console.error('Error al registrar el usuario:', error);
@@ -37,8 +39,11 @@ const login = async (req, res) => {
     // Establece el token JWT como una cookie
     res.cookie("jwt", token, { httpOnly: true });
 
-    // Redirige al usuario a /api/sessions/current
-    res.redirect('/api/sessions/current');
+    // Establece la sesión del usuario
+    req.session.user = user;
+
+    // Redirige al usuario a /products
+    res.redirect('/products');
   } catch (error) {
     res.status(500).json({ error: "Error al iniciar sesión" });
   }
