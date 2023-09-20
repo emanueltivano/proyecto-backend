@@ -19,7 +19,7 @@ const createCart = async () => {
     await newCart.save();
     return newCart;
   } catch (error) {
-    throw new Error('Error creating cart.');
+    throw aError('Error creating cart.');
   }
 };
 
@@ -119,5 +119,5 @@ module.exports = {
   removeProductFromCart,
   updateCart,
   updateProductUnits,
-  removeAllProductsFromCart
+  removeAllProductsFromCart,
 };

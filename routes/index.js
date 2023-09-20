@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { sendRealTimeProductsUpdate } = require('../utils');
-const ProductManager = require('../dao/mongodb/ProductManager');
-const CartManager = require('../dao/mongodb/CartManager');
+const { sendRealTimeProductsUpdate } = require('../services/utils');
+const ProductManager = require('../dao/ProductManager');
+const CartManager = require('../dao/CartManager');
 const ProductRouter = require('./ProductRouter');
 const CartRouter = require('./CartRouter');
 const SessionRouter = require('./SessionRouter');
-const { calculateTotalPages, getPaginatedProducts } = require('../dao/mongodb/ProductManager');
+const { calculateTotalPages, getPaginatedProducts } = require('../dao/ProductManager');
 
 router.use('/', SessionRouter);
 router.use('/api/products', ProductRouter);
 router.use('/api/carts', CartRouter);
 
-const authMiddleware = require('../authMiddleware');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 router.get('/', (req, res) => {
   res.redirect('/login'); // Redirige a la página de inicio de sesión

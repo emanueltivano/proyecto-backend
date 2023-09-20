@@ -4,7 +4,7 @@ const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const bcrypt = require("bcrypt");
 const GitHubStrategy = require("passport-github2");
-const UserModel = require("../dao/models/UserModel");
+const UserModel = require("../models/UserModel");
 const config = require('../config/config');
 
 const initializePassport = () => {
