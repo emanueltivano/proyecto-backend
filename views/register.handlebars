@@ -9,7 +9,7 @@
 
 <body>
     <h1>Registrarse</h1>
-    <form action="/register" method="POST">
+    <form action="/api/sessions/register" method="POST">
         <div>
             <label for="first_name">Nombre:</label>
             <input type="text" name="first_name" required>
@@ -39,6 +39,9 @@
     </form>
     <br>
     <a href="/login">Inicia sesión</a>
+    <br>
+    <br>
+    <a href="/api/sessions/github">Ingresar con GitHub</a>
 </body>
 
 </html>

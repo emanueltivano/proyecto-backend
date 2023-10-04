@@ -9,13 +9,29 @@
 
 <body>
     <h1>Perfil de {{user.role}}</h1>
+
+    {{#if user.admin}}
+    <a href="/realtimeproducts">Ir a productos</a>
+    &nbsp;
+    <a href="/api/sessions/logout">Cerrar sesión</a>
+    {{else}}
+    <a href="/products">Ir a productos</a>
+    &nbsp;
+    <a href="/cart/{{user.cart}}">Ir al carrito</a>
+    &nbsp;
+    <a href="/chat">Ir al chat</a>
+    &nbsp;
+    <a href="/api/sessions/logout">Cerrar sesión</a>
+    <br>
+    {{/if}}
+
+    <h2>Informacion personal:</h2>
+
     <p>Nombre: {{user.first_name}}</p>
     <p>Apellido: {{user.last_name}}</p>
     <p>Edad: {{user.age}}</p>
     <p>Email: {{user.email}}</p>
     <br>
-    <a href="/products">Ir a productos</a> 
-    <a href="/logout">Cerrar sesión</a>
 </body>
 
 </html>

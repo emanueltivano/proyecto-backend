@@ -1,10 +1,24 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
 </head>
+
 <body>
     <h1>Chat</h1>
+    <a href="/profile">Mi perfil</a>
+    &nbsp;
+    <a href="/products">Ir a productos</a>
+    &nbsp;
+    <a href="/cart/{{user.cart}}">Ir al carrito</a>
+    &nbsp;
+    <a href="/api/sessions/logout">Cerrar sesión</a>
+    <br>
+    <h2>Mensajes:</h2>
+
     <div>
         <ul id="message-list">
             {{#each messages}}
@@ -24,6 +38,8 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        console.log(req.user)
+
         const socket = io();
 
         // Función para mostrar los mensajes en la página
@@ -68,13 +84,14 @@
                 },
                 body: JSON.stringify(newMessageData)
             })
-            .then(response => response.json())
-            .then(data => {
-                // Limpiar el formulario
-                sendMessageForm.reset();
-            })
-            .catch(error => console.error('Error sending message:', error));
+                .then(response => response.json())
+                .then(data => {
+                    // Limpiar el formulario
+                    sendMessageForm.reset();
+                })
+                .catch(error => console.error('Error sending message:', error));
         });
     </script>
 </body>
+
 </html>

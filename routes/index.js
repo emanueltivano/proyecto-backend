@@ -1,24 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const { sendRealTimeProductsUpdate } = require('../services/utils');
-const ProductManager = require('../dao/ProductManager');
-const CartManager = require('../dao/CartManager');
+const ProductManager = require('../DAO/ProductDAO');
+const CartManager = require('../DAO/CartDAO');
+
 const ProductRouter = require('./ProductRouter');
 const CartRouter = require('./CartRouter');
 const SessionRouter = require('./SessionRouter');
-const { calculateTotalPages, getPaginatedProducts } = require('../dao/ProductManager');
 
-router.use('/', SessionRouter);
+const cookieParser = require("cookie-parser");
+const authMiddleware = require('../middlewares/authMiddleware');
+const { sendRealTimeProductsUpdate, calculateTotalPrice, getPaginatedProducts } = require('../services/utils');
+
+router.use(cookieParser());
+router.use('/api/sessions', SessionRouter);
 router.use('/api/products', ProductRouter);
 router.use('/api/carts', CartRouter);
-
-const authMiddleware = require('../middlewares/authMiddleware');
 
 router.get('/', (req, res) => {
   res.redirect('/login'); // Redirige a la página de inicio de sesión
 });
 
-router.post('/api/products', async (req, res, next) => {
+router.get('/register', (req, res) => {
+  res.render('register'); // Renderizar la vista de registro
+});
+
+router.get('/login', (req, res) => {
+  res.render('login'); // Renderizar la vista de inicio de sesión
+});
+
+router.post('/api/products', authMiddleware, async (req, res, next) => {
   const newProductData = req.body;
   try {
     const newProduct = await ProductManager.createProduct(newProductData);
@@ -46,7 +56,7 @@ router.get('/products', authMiddleware, async (req, res) => {
       sortOptions.price = -1;
     }
 
-    const productsResponse = await ProductManager.getPaginatedProducts(filters, sortOptions, parseInt(limit), parseInt(page));
+    const productsResponse = await getPaginatedProducts(filters, sortOptions, parseInt(limit), parseInt(page));
 
     const prevLink = productsResponse.prevLink
       ? `/products?limit=${limit}&page=${parseInt(page) - 1}${sort ? `&sort=${sort}` : ''}${query ? `&query=${query}` : ''}`
@@ -67,19 +77,32 @@ router.get('/products', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/carts/:cid', async (req, res) => {
+router.get('/cart/:cid', authMiddleware, async (req, res) => {
   const { cid } = req.params;
   try {
     const cart = await CartManager.getCartById(cid);
-    console.log(cart)
-    res.render('carts', { cart });
+    const totalPrice = calculateTotalPrice(cart);
+    res.render('carts', { cart, totalPrice });
+  } catch (error) {
+    res.status(404).send('Cart not found.');
+  }
+});
+
+router.get('/cart/:cid/purchase', authMiddleware, async (req, res) => {
+  const { cid } = req.params;
+  try {
+    const cart = await CartManager.getCartById(cid);
+    const totalPrice = calculateTotalPrice(cart);
+    res.render('carts', { cart, totalPrice });
   } catch (error) {
     res.status(404).send('Cart not found.');
   }
 });
 
 router.get('/chat', authMiddleware, (req, res) => {
-  res.render('chat');
+  res.render('chat', {
+    user: req.session.user, 
+  });
 });
 
 router.get('/realtimeproducts', authMiddleware, async (req, res) => {

@@ -2,26 +2,91 @@
 <html>
 
 <head>
-    <title>Cart Details</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrito</title>
 </head>
 
 <body>
-    <h2>Cart Information</h2>
-    <p>Cart ID: {{ cart._id }}</p>
-    <h3>Products:</h3>
+    <h1>Carrito</h1>
+    <a href="/profile">Mi perfil</a>
+    &nbsp;
+    <a href="/products">Ir a productos</a>
+    &nbsp;
+    <a href="/chat">Ir al chat</a>
+    &nbsp;
+    <a href="/api/sessions/logout">Cerrar sesión</a>
+    <br>
+    <h2>Productos en el carrito:</h2>
+
+    {{#if cart.products.length}}
     <ul>
         {{#each cart.products}}
         <li>
-            Product ID: {{ this.product._id }}
-            <br>
-            Product Price: {{ this.product.price }}
-            <br>
-            Product Category: {{ this.product.category }}
-            <br>
-            Product Units: {{ this.units }}
+            <h3>{{this.product.title}} (Unidades: {{ this.units }})</h3>
+            <p>Descripción: {{this.product.description}}</p>
+            <p>Precio por unidad: ${{this.product.price}}</p>
+            <p>Categoria: {{ this.product.category }}</p>
+            <button onclick="deleteProduct('{{this.product._id}}')">Eliminar 1 producto</button>
         </li>
+        <br>
         {{/each}}
     </ul>
+
+    <h4>Total: ${{totalPrice}}</h4>
+    <form action="/api/carts/{{cart._id}}/purchase" method="POST">
+        <button type="submit">Finalizar compra</button>
+    </form>
+
+    <br>
+
+    <button onclick="deleteAllProducts()">Vaciar carrito</button>
+    {{else}}
+    <p>No hay productos en el carrito.</p>
+    {{/if}}
+
+    <script>
+        async function deleteProduct(pid) {
+            let cid = `{{cart._id}}`;
+            try {
+                const response = await fetch(`/api/carts/${cid}/products/${pid}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    location.reload()
+                } else {
+                    console.error('Error al eliminar el producto del carrito.');
+                }
+            } catch (error) {
+                console.error('Error de red:', error);
+            }
+        }
+
+
+        async function deleteAllProducts() {
+            let cid = `{{cart._id}}`;
+            try {
+                const response = await fetch(`/api/carts/${cid}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    location.reload()
+                } else {
+                    console.error('Error al eliminar el producto del carrito.');
+                }
+            } catch (error) {
+                console.error('Error de red:', error);
+            }
+        }
+    </script>
 </body>
 
 </html>

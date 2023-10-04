@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const MessageManager = require('../dao/MessageManager');
+const MessageManager = require('../DAO/MessageManager');
 
 router.post('/', async (req, res, next) => {
   const { user, message } = req.body;

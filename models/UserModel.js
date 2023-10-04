@@ -1,4 +1,5 @@
 const { Schema, model } = require('mongoose');
+const mongoose = require('mongoose');
 
 const userSchema = new Schema({
     first_name: String,
@@ -16,6 +17,10 @@ const userSchema = new Schema({
     role: {
         type: String,
         default: 'user'
+    },
+    cart: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Cart'
     }
 }, {
     versionKey: false

@@ -8,5 +8,7 @@ module.exports = {
     githubSecret: process.env.GITHUB_SECRET,
     callbackUrl: process.env.CALLBACK_URL,
     adminEmail: process.env.ADMIN_EMAIL,
-    adminPassword: process.env.ADMIN_PASSWORD
+    adminPassword: process.env.ADMIN_PASSWORD,
+    gmailUser: process.env.GMAIL_USER,
+    gmailPassword: process.env.GMAIL_PASSWORD
 };
