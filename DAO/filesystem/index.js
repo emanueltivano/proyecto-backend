@@ -4,7 +4,7 @@ const carts_router = require('./CartFsDAO.js');
 
 const router = Router();
 
-router.use('/products', products_router);
-router.use('/carts', carts_router);
+router.use('/api/products', products_router);
+router.use('/api/carts', carts_router);
 
 module.exports = router;

@@ -6,13 +6,24 @@ const cors = require('cors');
 const config = require('./config/config');
 const MongoStore = require('connect-mongo');
 const passport = require('passport');
-const indexRouter = require('./routes/index');
 const initializePassport = require('./config/passport.config');
 const setupChangeStreams = require('./services/changeStreams');
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const persistance = "mongodb"
+
+let url = ''
+
+if (persistance === "mongodb") {
+  url = './routes/index'
+} else if ((persistance === "filesystem")) {
+  url = './DAO/filesystem/index'
+}
+
+const indexRouter = require(url);
 
 // Configuraciones iniciales
 initializePassport();
