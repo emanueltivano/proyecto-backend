@@ -6,6 +6,7 @@ const cors = require('cors');
 const config = require('./config/config');
 const MongoStore = require('connect-mongo');
 const passport = require('passport');
+const indexRouter = require('./routes/index');
 const initializePassport = require('./config/passport.config');
 const setupChangeStreams = require('./services/changeStreams');
 
@@ -45,14 +46,6 @@ mongoose.connect(config.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: t
     console.error('Error en la conexión a MongoDB:', error);
   });
 
-// Rutas
-const indexRouter = require('./routes/index');
-const productRouter = require('./routes/ProductRouter');
-const messageRouter = require('./routes/MessageRouter');
-const cartRouter = require('./routes/CartRouter');
 app.use('/', indexRouter);
-app.use('/api/products', productRouter);
-app.use('/api/messages', messageRouter);
-app.use('/api/carts', cartRouter);
 
 module.exports = app;

@@ -18,6 +18,8 @@ const ticketSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+}, {
+  versionKey: false
 });
 
 const Ticket = mongoose.model('Ticket', ticketSchema);

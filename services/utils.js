@@ -89,6 +89,7 @@ function generateUniqueCode() {
 
 module.exports = {
     sendRealTimeProductsUpdate,
+    countProducts,
     calculateTotalPrice,
     getPaginatedProducts,
     createToken,

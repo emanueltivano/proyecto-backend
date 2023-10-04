@@ -10,5 +10,9 @@ module.exports = {
     adminEmail: process.env.ADMIN_EMAIL,
     adminPassword: process.env.ADMIN_PASSWORD,
     gmailUser: process.env.GMAIL_USER,
-    gmailPassword: process.env.GMAIL_PASSWORD
+    gmailPassword: process.env.GMAIL_PASSWORD,
+    twilioSid: process.env.TWILIO_ACCOUNT_SID,
+    twilioToken: process.env.TWILIO_AUTH_TOKEN,
+    twilioNumber: process.env.TWILIO_PHONE_NUMBER,
+    testNumber: process.env.TEST_PHONE_NUMBER
 };

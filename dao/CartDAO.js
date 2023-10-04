@@ -135,15 +135,28 @@ class CartDAO {
       if (!cart) {
         throw new Error(`Cart with id ${cid} not found.`);
       }
-
+  
+      // Guarda temporalmente los productos que se eliminarán del carrito
+      const productsToRemove = cart.products;
+  
+      // Elimina todos los productos del carrito
       cart.products = [];
-
       await cart.save();
+  
+      // Aumenta el stock de los productos eliminados del carrito
+      for (const product of productsToRemove) {
+        const existingProduct = await Product.findById(product.product);
+        if (existingProduct) {
+          existingProduct.stock += product.units;
+          await existingProduct.save();
+        }
+      }
+  
       return cart;
     } catch (error) {
       throw new Error(error.message);
     }
-  }
+  }  
 
   async finishPurchase(cid, req) {
     try {
@@ -153,39 +166,35 @@ class CartDAO {
       const productsNotPurchased = [];
 
       for (const product of productsToPurchase) {
-        const { product, units } = product;
-  
-        const existingProduct = await ProductDAO.getProductById(product);
-  
-        if (existingProduct && existingProduct.stock >= units) {
-          // Resta la cantidad comprada del stock del producto
-          existingProduct.stock -= units;
-          await existingProduct.save();
-  
+        const { product: productId, units: quantity } = product;
+
+        const existingProduct = await ProductDAO.getProductById(productId);
+
+        if (existingProduct && existingProduct.stock >= quantity) {
           // Agrega el producto al ticket
-          const totalAmount = units * existingProduct.price;
-  
+          const totalAmount = quantity * existingProduct.price;
+
           const ticket = new Ticket({
             code: generateUniqueCode(),
             amount: totalAmount,
             purchaser: req.session.user.email,
           });
-  
+
           await ticket.save();
         } else {
-          // Si no hay suficiente stock, agrega el producto a la lista de productos no comprados
+          // Si no hay suficiente stock, agrega el productId a la lista de productos no comprados
           productsNotPurchased.push(productId);
         }
       }
 
       // Actualiza el carrito con los productos que no se pudieron comprar
-      cart.products = productsNotPurchased.map((productId) => ({ productId, quantity: 1 }));
+      cart.products = productsNotPurchased.map((productId) => ({ product: productId, units: 1 }));
       await cart.save();
 
-      res.json({ success: true, productsNotPurchased });
+      return { success: true, productsNotPurchased };
     } catch (error) {
       console.error(error);
-      res.status(500).json({ success: false, error: 'Error al procesar la compra' });
+      throw new Error('Error al procesar la compra');
     }
   }
 }

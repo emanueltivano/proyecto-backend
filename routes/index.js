@@ -1,13 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const ProductManager = require('../DAO/ProductDAO');
-const CartManager = require('../DAO/CartDAO');
+const CartDAO = require('../DAO/CartDAO');
+const ProductDAO = require('../DAO/ProductDAO');
 
-const ProductRouter = require('./ProductRouter');
 const CartRouter = require('./CartRouter');
+const ProductRouter = require('./ProductRouter');
 const SessionRouter = require('./SessionRouter');
 
+const twilio = require('twilio');
+const config = require('../config/config')
 const cookieParser = require("cookie-parser");
+const roleMiddleware = require('../middlewares/roleMiddleware');
 const authMiddleware = require('../middlewares/authMiddleware');
 const { sendRealTimeProductsUpdate, calculateTotalPrice, getPaginatedProducts } = require('../services/utils');
 
@@ -28,10 +31,10 @@ router.get('/login', (req, res) => {
   res.render('login'); // Renderizar la vista de inicio de sesión
 });
 
-router.post('/api/products', authMiddleware, async (req, res, next) => {
+router.post('/api/products', authMiddleware, roleMiddleware('admin'), async (req, res, next) => {
   const newProductData = req.body;
   try {
-    const newProduct = await ProductManager.createProduct(newProductData);
+    const newProduct = await ProductDAO.createProduct(newProductData);
     sendRealTimeProductsUpdate(req.io, newProduct);
     res.redirect('/realtimeproducts');
   } catch (error) {
@@ -40,7 +43,7 @@ router.post('/api/products', authMiddleware, async (req, res, next) => {
 });
 
 // Ruta para mostrar la vista de productos con paginación
-router.get('/products', authMiddleware, async (req, res) => {
+router.get('/products', authMiddleware, roleMiddleware('user'), async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query } = req.query;
 
@@ -77,10 +80,10 @@ router.get('/products', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/cart/:cid', authMiddleware, async (req, res) => {
+router.get('/cart/:cid', authMiddleware, roleMiddleware('user'), async (req, res) => {
   const { cid } = req.params;
   try {
-    const cart = await CartManager.getCartById(cid);
+    const cart = await CartDAO.getCartById(cid);
     const totalPrice = calculateTotalPrice(cart);
     res.render('carts', { cart, totalPrice });
   } catch (error) {
@@ -88,10 +91,10 @@ router.get('/cart/:cid', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/cart/:cid/purchase', authMiddleware, async (req, res) => {
+router.get('/cart/:cid/purchase', authMiddleware, roleMiddleware('user'), async (req, res) => {
   const { cid } = req.params;
   try {
-    const cart = await CartManager.getCartById(cid);
+    const cart = await CartDAO.getCartById(cid);
     const totalPrice = calculateTotalPrice(cart);
     res.render('carts', { cart, totalPrice });
   } catch (error) {
@@ -99,15 +102,15 @@ router.get('/cart/:cid/purchase', authMiddleware, async (req, res) => {
   }
 });
 
-router.get('/chat', authMiddleware, (req, res) => {
+router.get('/chat', authMiddleware, roleMiddleware('user'), (req, res) => {
   res.render('chat', {
     user: req.session.user, 
   });
 });
 
-router.get('/realtimeproducts', authMiddleware, async (req, res) => {
+router.get('/realtimeproducts', authMiddleware, roleMiddleware('admin'), async (req, res) => {
   try {
-    const products = await ProductManager.getAllProducts();
+    const products = await ProductDAO.getAllProducts();
     const productsData = products.map((product) => product.toObject());
     const newProduct = {}; // Crear un objeto vacío para newProduct
     res.render('realTimeProducts', { products: productsData, newProduct }); // Agregar newProduct al contexto
@@ -120,5 +123,15 @@ router.get('/profile', authMiddleware, (req, res) => {
   const user = req.session.user;
   res.render('profile', { user });
 });
+
+router.get('/sms', authMiddleware, async (req, res) => {
+  const client = twilio(config.twilioSid, config.twilioToken)
+  await client.messages.create({
+    body: 'Aquí tienes el codigo de verificación: 757057',
+    from: config.twilioNumber,
+    to: config.testNumber
+  })
+  res.send({ status: "success", response: "Se envió correctamente el mensaje." });
+})
 
 module.exports = router;

@@ -34,8 +34,12 @@ class SessionController {
 
       // Establece la sesión del usuario
       req.session.user = user;
-
-      res.redirect('/products')
+      
+      if (req.session.user.admin) {
+        res.redirect('/realtimeproducts')
+      } else {
+        res.redirect('/products')
+      }
     } catch (error) {
       res.status(500).json({ error: "Error al iniciar sesión" });
     }

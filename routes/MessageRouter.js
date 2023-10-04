@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const MessageManager = require('../DAO/MessageManager');
+const roleMiddleware = require('../middlewares/roleMiddleware');
+const authMiddleware = require('../middlewares/authMiddleware');
 
-router.post('/', async (req, res, next) => {
+router.post('/', authMiddleware, roleMiddleware('user'), async (req, res, next) => {
   const { user, message } = req.body;
   try {
     const newMessage = await MessageManager.createMessage(user, message);

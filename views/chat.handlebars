@@ -30,7 +30,6 @@
     </div>
     <div>
         <form id="sendMessageForm">
-            <input type="text" id="user" placeholder="Username" required>
             <input type="text" id="message" placeholder="Message" required>
             <button type="submit">Send</button>
         </form>
@@ -38,8 +37,6 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        console.log(req.user)
-
         const socket = io();
 
         // Función para mostrar los mensajes en la página
@@ -50,7 +47,7 @@
             messages.forEach((message) => {
                 const messageItem = document.createElement('li');
                 messageItem.innerHTML = `
-                    <strong>${message.user}</strong>: ${message.message}
+                    <strong>{{user.first_name}}</strong>: ${message.message}
                 `;
                 messageList.appendChild(messageItem);
             });
@@ -73,7 +70,7 @@
         const sendMessageForm = document.getElementById('sendMessageForm');
         sendMessageForm.addEventListener('submit', (event) => {
             event.preventDefault();
-            const user = document.getElementById('user').value;
+            const user = '{{user.first_name}}';
             const message = document.getElementById('message').value;
             const newMessageData = { user, message };
 

@@ -1,4 +1,5 @@
 const ProductRepository = require('../repositories/ProductRepository');
+const { countProducts, calculateTotalPages, getProducts } = require('../services/utils');
 
 class ProductController {
   async getAllProducts(req, res) {
@@ -20,11 +21,11 @@ class ProductController {
     }
 
     try {
-      const totalCount = await ProductRepository.countProducts(filters);
-      const totalPages = ProductRepository.calculateTotalPages(totalCount, limit);
+      const totalCount = await countProducts(filters);
+      const totalPages = Math.ceil(totalCount / limit)
 
       const skip = (page - 1) * limit;
-      const products = await ProductRepository.getProducts(filters, sortOptions, limit, skip);
+      const products = getProducts(filters, sortOptions, limit, skip);
 
       const prevLink = page > 1 ? `/api/products?limit=${limit}&page=${parseInt(page) - 1}&sort=${sort}` : null;
       const nextLink = page < totalPages ? `/api/products?limit=${limit}&page=${parseInt(page) + 1}&sort=${sort}` : null;
