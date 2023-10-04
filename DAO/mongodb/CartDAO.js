@@ -1,8 +1,8 @@
-const Cart = require('../models/CartModel');
-const Product = require('../models/ProductModel');
-const Ticket = require('../models/TicketModel');
-const ProductDAO = require('../DAO/ProductDAO');
-const { generateUniqueCode } = require('../services/utils');
+const Cart = require('../../models/CartModel');
+const Product = require('../../models/ProductModel');
+const Ticket = require('../../models/TicketModel');
+const ProductDAO = require('./ProductDAO');
+const { generateUniqueCode } = require('../../services/utils');
 
 class CartDAO {
   async getCartById(cid) {
@@ -135,14 +135,14 @@ class CartDAO {
       if (!cart) {
         throw new Error(`Cart with id ${cid} not found.`);
       }
-  
+
       // Guarda temporalmente los productos que se eliminarán del carrito
       const productsToRemove = cart.products;
-  
+
       // Elimina todos los productos del carrito
       cart.products = [];
       await cart.save();
-  
+
       // Aumenta el stock de los productos eliminados del carrito
       for (const product of productsToRemove) {
         const existingProduct = await Product.findById(product.product);
@@ -151,12 +151,12 @@ class CartDAO {
           await existingProduct.save();
         }
       }
-  
+
       return cart;
     } catch (error) {
       throw new Error(error.message);
     }
-  }  
+  }
 
   async finishPurchase(cid, req) {
     try {

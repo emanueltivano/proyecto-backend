@@ -1,4 +1,4 @@
-const SessionDAO = require('../DAO/SessionDAO');
+const SessionDAO = require('../DAO/mongodb/SessionDAO');
 
 class SessionRepository {
   async loginUser(email, password) {

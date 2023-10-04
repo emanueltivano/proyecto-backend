@@ -1,4 +1,4 @@
-const ProductDAO = require('../DAO/ProductDAO');
+const ProductDAO = require('../DAO/mongodb/ProductDAO');
 
 class ProductRepository {
   async getAllProducts(limit) {

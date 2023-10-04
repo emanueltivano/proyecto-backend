@@ -1,4 +1,4 @@
-const Product = require('../models/ProductModel');
+const Product = require('../../models/ProductModel');
 
 class ProductDAO {
   async getAllProducts(limit) {
@@ -30,7 +30,7 @@ class ProductDAO {
       await newProduct.save();
       return newProduct;
     } catch (error) {
-      console.error(error); 
+      console.error(error);
       throw new Error('Error creating product.');
     }
   }

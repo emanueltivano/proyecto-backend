@@ -1,4 +1,4 @@
-const CartDAO = require('../DAO/CartDAO');
+const CartDAO = require('../DAO/mongodb/CartDAO');
 
 class CartRepository {
   async getCartById(cid) {

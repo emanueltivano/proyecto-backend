@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const CartDAO = require('../DAO/CartDAO');
-const ProductDAO = require('../DAO/ProductDAO');
+const CartDAO = require('../DAO/mongodb/CartDAO');
+const ProductDAO = require('../DAO/mongodb/ProductDAO');
 
 const CartRouter = require('./CartRouter');
 const ProductRouter = require('./ProductRouter');

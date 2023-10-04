@@ -1,8 +1,8 @@
 const bcrypt = require("bcrypt");
-const UserModel = require("../models/UserModel");
-const config = require('../config/config');
-const CartDAO = require('../DAO/CartDAO');
-const { createToken, transport } = require('../services/utils');
+const UserModel = require("../../models/UserModel");
+const config = require('../../config/config');
+const CartDAO = require('./CartDAO');
+const { createToken, transport } = require('../../services/utils');
 
 class SessionDAO {
     async registerUser(first_name, last_name, email, age, password) {
