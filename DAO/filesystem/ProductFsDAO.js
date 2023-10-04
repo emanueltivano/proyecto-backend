@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const router = express.Router();
-const { sendRealTimeProductsUpdate, readItemsFromFile, generateId, errorHandler, saveItemsToFile } = require('../../utils');
+const { sendRealTimeProductsUpdate, readItemsFromFile, generateId, errorHandler, saveItemsToFile } = require('../../services/utils');
 
 const productsFilePath = './data/products.json';
 
@@ -101,9 +101,3 @@ router.delete('/:pid', (req, res, next) => {
 });
 
 module.exports = router;
-module.exports = {
-    readItemsFromFile,
-    generateId,
-    errorHandler,
-    saveItemsToFile
-};
