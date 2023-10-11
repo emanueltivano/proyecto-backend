@@ -65,9 +65,13 @@ class ProductController {
   async createProduct(req, res) {
     const newProductData = req.body;
     const title = newProductData.title;
+    const description = newProductData.description;
+    const code = newProductData.code;
     const price = newProductData.price;
+    const stock = newProductData.stock;
+    const category = newProductData.category;
   
-    if (!title || !price || title.trim() === '' || isNaN(price)) {
+    if (!title || !description || !code || !price || !stock || !category) {
       const errorMessage = GenerateProductError(newProductData);
       const error = CustomError({
         name: 'ProductCreationError',
