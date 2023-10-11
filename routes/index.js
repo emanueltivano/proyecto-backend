@@ -12,10 +12,7 @@ const config = require('../config/config')
 const cookieParser = require("cookie-parser");
 const roleMiddleware = require('../middlewares/roleMiddleware');
 const authMiddleware = require('../middlewares/authMiddleware');
-const Errors = require('../services/errors/Errors');
-const CustomError = require('../services/errors/CustomError');
-const { GenerateProductError } = require('../services/errors/info');
-const { sendRealTimeProductsUpdate, calculateTotalPrice, getPaginatedProducts, generateMockProducts } = require('../services/utils');
+const { calculateTotalPrice, getPaginatedProducts, generateMockProducts } = require('../services/utils');
 
 router.use(cookieParser());
 router.use('/api/sessions', SessionRouter);
@@ -40,27 +37,6 @@ router.get('/mockingproducts', async (req, res) => {
     res.json(mockingProducts);
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-router.post('/api/products', authMiddleware, roleMiddleware('admin'), async (req, res, next) => {
-  const newProductData = req.body;
-  try {
-    const { title, price } = req.body
-    console.log (title)
-    if (!title || !price) {
-      CustomError.createError({
-        name:"Product creation error",
-        cause:GenerateProductError(title, price),
-        message: "Error triying to create Product",
-        code:Errors.INVALID_TYPES_ERROR
-      });
-    }
-    const newProduct = await ProductDAO.createProduct(newProductData);
-    sendRealTimeProductsUpdate(req.io, newProduct);
-    res.redirect('/realtimeproducts');
-  } catch (error) {
-    res.status(400).json({ status: 400, response: error.message });
   }
 });
 

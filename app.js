@@ -8,6 +8,7 @@ const MongoStore = require('connect-mongo');
 const passport = require('passport');
 const initializePassport = require('./config/passport.config');
 const setupChangeStreams = require('./services/changeStreams');
+const { errorHandler } = require("./services/utils");
 
 const app = express();
 app.use(express.json());
@@ -58,5 +59,6 @@ mongoose.connect(config.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: t
   });
 
 app.use('/', indexRouter);
+app.use(errorHandler)
 
 module.exports = app;

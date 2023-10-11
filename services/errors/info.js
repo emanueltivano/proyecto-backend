@@ -1,8 +1,8 @@
-const GenerateProduct = (product) => {
+const GenerateProductErrorInfo = (product) => {
     return `One or more properties were incomplete or not valid.
     List of required properties:
-    - title: Needs to be a string, recieved ${product.title}
-    - price: Needs to be a number, recieved ${product.price}`
+    - title: Needs to be a string, received ${product.title}
+    - price: Needs to be a number, received ${product.price}`
 }
 
-module.exports = GenerateProduct;
+module.exports = GenerateProductErrorInfo;

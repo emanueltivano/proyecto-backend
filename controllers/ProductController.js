@@ -1,5 +1,8 @@
 const ProductRepository = require('../repositories/ProductRepository');
-const { countProducts, calculateTotalPages, getProducts } = require('../services/utils');
+const { countProducts, getProducts } = require('../services/utils');
+const Errors = require('../services/errors/Errors');
+const CustomError = require('../services/errors/CustomError');
+const GenerateProductError = require('../services/errors/info');
 
 class ProductController {
   async getAllProducts(req, res) {
@@ -61,11 +64,21 @@ class ProductController {
 
   async createProduct(req, res) {
     const newProductData = req.body;
-    try {
+    const title = newProductData.title;
+    const price = newProductData.price;
+  
+    if (!title || !price || title.trim() === '' || isNaN(price)) {
+      const errorMessage = GenerateProductError(newProductData);
+      const error = CustomError({
+        name: 'ProductCreationError',
+        cause: errorMessage,
+        message: 'Error trying to create Product',
+        code: Errors.INVALID_TYPES_ERROR
+      });
+      throw error;
+    } else {
       const newProduct = await ProductRepository.createProduct(newProductData);
       res.status(201).json({ status: 201, response: newProduct });
-    } catch (error) {
-      res.status(400).json({ status: 400, response: error.message });
     }
   }
 
