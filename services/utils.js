@@ -112,6 +112,22 @@ const errorHandler = (err, req, res, next) => {
   res.status(err.status || 500).json({ status: err.status || 500, response: err.message });
 };
 
+const generateMockProducts = (count) => {
+  const products = [];
+  for (let i = 1; i <= count; i++) {
+    products.push({
+      title: `Product ${i}`,
+      description: `Description for Product ${i}`,
+      code: `P${i}`,
+      price: Math.floor(Math.random() * 999),
+      stock: Math.floor(Math.random() * 999),
+      category: `Category ${Math.floor(Math.random() * 10)}`,
+      thumbnails: [],
+    });
+  }
+  return products;
+}
+
 module.exports = {
     sendRealTimeProductsUpdate,
     countProducts,
@@ -123,6 +139,6 @@ module.exports = {
     generateUniqueCode,
     readItemsFromFile,
     generateId,
-    errorHandler,
-    saveItemsToFile
+    saveItemsToFile,
+    generateMockProducts
 };
