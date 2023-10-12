@@ -64,14 +64,7 @@ class ProductController {
 
   async createProduct(req, res) {
     const newProductData = req.body;
-    const title = newProductData.title;
-    const description = newProductData.description;
-    const code = newProductData.code;
-    const price = newProductData.price;
-    const stock = newProductData.stock;
-    const category = newProductData.category;
-  
-    if (!title || !description || !code || !price || !stock || !category) {
+    if (!newProductData.title || !newProductData.description || !newProductData.code || !newProductData.price || !newProductData.stock || !newProductData.category) {
       const errorMessage = GenerateProductError(newProductData);
       const error = CustomError({
         name: 'ProductCreationError',
@@ -79,11 +72,11 @@ class ProductController {
         message: 'Error trying to create Product',
         code: Errors.INVALID_TYPES_ERROR
       });
-      throw error;
-    } else {
-      const newProduct = await ProductRepository.createProduct(newProductData);
-      res.status(201).json({ status: 201, response: newProduct });
+      throw error; // Lanzar el error personalizado
     }
+
+    const newProduct = await ProductRepository.createProduct(newProductData);
+    res.status(201).json({ status: 201, response: newProduct });
   }
 
   async updateProduct(req, res) {

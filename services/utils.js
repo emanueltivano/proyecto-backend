@@ -111,13 +111,15 @@ const saveItemsToFile = (items, filePath) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-  console.log(err.cause);
+  console.error(err);
+
+  // Envia una respuesta al cliente
   switch (err.code) {
-      case Errors.INVALID_TYPES_ERROR:
-          res.status(400).json({ status: 'error', error: err.message });
-          break;
-      default:
-          res.status(500).json({ status: 'error', error: 'Unhandled error' });
+    case Errors.INVALID_TYPES_ERROR:
+      res.status(400).json({ status: 'error', error: err.message });
+      break;
+    default:
+      res.status(500).json({ status: 'error', error: 'Unhandled error' });
   }
 };
 

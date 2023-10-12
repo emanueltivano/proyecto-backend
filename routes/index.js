@@ -12,12 +12,23 @@ const config = require('../config/config')
 const cookieParser = require("cookie-parser");
 const roleMiddleware = require('../middlewares/roleMiddleware');
 const authMiddleware = require('../middlewares/authMiddleware');
+const logger = require('../services/logger');
 const { calculateTotalPrice, getPaginatedProducts, generateMockProducts } = require('../services/utils');
 
 router.use(cookieParser());
 router.use('/api/sessions', SessionRouter);
 router.use('/api/products', ProductRouter);
 router.use('/api/carts', CartRouter);
+
+router.get('/loggerTest', (req, res) => {
+  logger.debug('Este es un mensaje de debug');
+  logger.info('Este es un mensaje de info');
+  logger.warn('Este es un mensaje de advertencia');
+  logger.error('Este es un mensaje de error');
+  logger.fatal('Este es un mensaje fatal');
+
+  res.send('Logs enviados. Por favor, verifica la consola y el archivo errors.log');
+});
 
 router.get('/', (req, res) => {
   res.redirect('/login'); // Redirige a la página de inicio de sesión
