@@ -9,6 +9,7 @@ const passport = require('passport');
 const initializePassport = require('./config/passport.config');
 const setupChangeStreams = require('./services/changeStreams');
 const { errorHandler } = require("./services/utils");
+const { logger, loggerMiddleware } = require('./services/logger');
 
 const app = express();
 app.use(express.json());
@@ -26,7 +27,8 @@ if (persistance === "mongodb") {
 
 const indexRouter = require(url);
 
-// Configuraciones iniciales
+app.use(loggerMiddleware);
+
 initializePassport();
 app.use(session({
   secret: "CoderSecrets",
@@ -43,22 +45,20 @@ app.use(session({
 app.use(passport.initialize());
 app.use(cors({ origin: `http://localhost:${config.port}`, methods: ['GET', 'POST', 'PUT', 'DELETE'] }));
 
-// Configuración de Handlebars
 const hbs = exphbs.create({ defaultLayout: 'main' });
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
-// Conexión a MongoDB y configuración de change streams
 mongoose.connect(config.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.log('Conexión exitosa a MongoDB');
+    logger.info('Conexión exitosa a MongoDB');
     setupChangeStreams();
   })
   .catch((error) => {
-    console.error('Error en la conexión a MongoDB:', error);
+    logger.error('Error en la conexión a MongoDB:', error);
   });
 
 app.use('/', indexRouter);
-app.use(errorHandler)
+app.use(errorHandler);
 
 module.exports = app;

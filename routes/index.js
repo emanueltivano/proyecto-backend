@@ -12,7 +12,7 @@ const config = require('../config/config')
 const cookieParser = require("cookie-parser");
 const roleMiddleware = require('../middlewares/roleMiddleware');
 const authMiddleware = require('../middlewares/authMiddleware');
-const logger = require('../services/logger');
+const { logger } = require('../services/logger');
 const { calculateTotalPrice, getPaginatedProducts, generateMockProducts } = require('../services/utils');
 
 router.use(cookieParser());

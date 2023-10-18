@@ -1,26 +1,58 @@
-const { createLogger, format, transports } = require('winston');
+const winston = require('winston');
+const config = require('../config/config');
 
-// Define los formatos que deseas utilizar
-const { combine, timestamp, json } = format;
+const levels = {
+  debug: 0,
+  http: 1,
+  info: 2,
+  warning: 3,
+  error: 4,
+  fatal: 5,
+};
 
-const logger = createLogger({
-  level: 'info',
-  format: combine(
-    timestamp(),
-    json()
+const colors = {
+  debug: 'blue',
+  http: 'green',
+  info: 'cyan',
+  warning: 'yellow',
+  error: 'red',
+  fatal: 'magenta',
+};
+
+winston.addColors(colors);
+winston.level = 'debug';
+
+const developmentLogger = winston.createLogger({
+  levels: levels,
+  format: winston.format.combine(
+    winston.format.colorize({ all: true }),
+    winston.format.simple()
   ),
   transports: [
-    // Transporte para la consola
-    new transports.Console({
-      level: 'debug',
-      format: format.combine(format.colorize(), format.simple())
-    }),
-    // Transporte para el archivo errors.log
-    new transports.File({
-      filename: '../errors.log',
-      level: 'error'
-    })
-  ]
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'errors.log', level: 'error' }),
+  ],
 });
 
-module.exports = logger;
+const productionLogger = winston.createLogger({
+  levels: levels,
+  format: winston.format.combine(
+    winston.format.colorize({ all: true }),
+    winston.format.simple()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'errors.log', level: 'error' }),
+  ],
+});
+
+const logger = config.nodeEnv === 'production' ? productionLogger : developmentLogger;
+
+const loggerMiddleware = (req, res, next) => {
+  logger.http(`${req.method} ${req.url}`);
+  next();
+};
+
+module.exports = {
+  logger: logger,
+  loggerMiddleware: loggerMiddleware,
+};
