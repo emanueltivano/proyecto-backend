@@ -23,7 +23,7 @@ router.use('/api/carts', CartRouter);
 router.get('/loggerTest', (req, res) => {
   logger.debug('Este es un mensaje de debug');
   logger.info('Este es un mensaje de info');
-  logger.warn('Este es un mensaje de advertencia');
+  logger.warning('Este es un mensaje de advertencia');
   logger.error('Este es un mensaje de error');
   logger.fatal('Este es un mensaje fatal');
 

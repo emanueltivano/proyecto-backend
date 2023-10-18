@@ -29,8 +29,9 @@ const developmentLogger = winston.createLogger({
     winston.format.simple()
   ),
   transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: 'errors.log', level: 'error' }),
+    new winston.transports.Console({
+      level: 'debug', // Solo mostrará mensajes desde nivel debug en adelante en la consola
+    }),
   ],
 });
 
@@ -41,7 +42,13 @@ const productionLogger = winston.createLogger({
     winston.format.simple()
   ),
   transports: [
-    new winston.transports.File({ filename: 'errors.log', level: 'error' }),
+    new winston.transports.Console({
+      level: 'info', // Mostrará mensajes desde nivel info en adelante en la consola
+    }),
+    new winston.transports.File({
+      filename: 'errors.log',
+      level: 'error', // Solo registrará mensajes de error en el archivo "errors.log"
+    }),
   ],
 });
 
