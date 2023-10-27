@@ -64,6 +64,11 @@ class ProductController {
 
   async createProduct(req, res) {
     const newProductData = req.body;
+    
+    // Obtener el correo electrónico del usuario autenticado
+    const owner = req.session.user.email;
+  
+    // Verificar si los datos del producto son válidos
     if (!newProductData.title || !newProductData.description || !newProductData.code || !newProductData.price || !newProductData.stock || !newProductData.category) {
       const errorMessage = GenerateProductError(newProductData);
       const error = CustomError({
@@ -72,11 +77,20 @@ class ProductController {
         message: 'Error trying to create Product',
         code: Errors.INVALID_TYPES_ERROR
       });
-      throw error; // Lanzar el error personalizado
+      return res.status(400).json({ status: 400, error: error.message });
     }
-
-    const newProduct = await ProductRepository.createProduct(newProductData);
-    res.status(201).json({ status: 201, response: newProduct });
+  
+    // Agregar el campo "owner" al objeto de datos del producto
+    newProductData.owner = owner || "admin";
+  
+    try {
+      // Crear el producto con el campo "owner"
+      const newProduct = await ProductRepository.createProduct(newProductData);
+      res.status(201).json({ status: 201, response: newProduct });
+    } catch (error) {
+      // Manejar errores al crear el producto
+      res.status(500).json({ status: 500, error: 'Error trying to create Product' });
+    }
   }
 
   async updateProduct(req, res) {
@@ -92,11 +106,30 @@ class ProductController {
 
   async deleteProduct(req, res) {
     const { pid } = req.params;
+    const user = req.session.user; // Obtener el usuario autenticado desde la sesión
+
     try {
-      const deletedProduct = await ProductRepository.deleteProduct(pid);
-      res.json({ status: 200, response: deletedProduct });
+      const product = await ProductRepository.getProductById(pid);
+
+      // Verificar si el producto existe
+      if (!product) {
+        return res.status(404).json({ status: 404, response: 'Product not found.' });
+      }
+
+      // Verificar si el usuario es un usuario premium y si el producto le pertenece
+      if (user.role === 'premium' && product.owner === user.email) {
+        const deletedProduct = await ProductRepository.deleteProduct(pid);
+        return res.json({ status: 200, response: deletedProduct });
+      } else if (user.role === 'admin') {
+        // Si el usuario es un administrador, permitir la eliminación del producto sin importar el owner
+        const deletedProduct = await ProductRepository.deleteProduct(pid);
+        res.json({ status: 200, response: deletedProduct });
+      } else {
+        // Si el usuario no tiene permisos, enviar una respuesta de error
+        res.status(403).json({ status: 403, response: 'Unauthorized: You do not have permission to delete this product.' });
+      }
     } catch (error) {
-      res.status(404).json({ status: 404, response: error.message });
+      return res.status(500).json({ status: 500, response: error.message });
     }
   }
 }

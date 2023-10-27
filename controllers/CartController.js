@@ -22,11 +22,12 @@ class CartController {
 
   async addProductToCart(req, res) {
     const { cid, pid } = req.params;
+    const userEmail = req.session.user.email; // Obtener el correo electrónico del usuario autenticado
     try {
-      const cart = await CartRepository.addProductToCart(cid, pid);
+      const cart = await CartRepository.addProductToCart(cid, pid, userEmail);
       res.status(200).json({ status: 200, response: cart });
     } catch (error) {
-      res.status(404).json({ status: 404, response: error.message });
+      res.status(400).json({ status: 400, response: error.message });
     }
   }
 

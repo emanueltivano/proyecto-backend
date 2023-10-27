@@ -12,6 +12,14 @@ class SessionRepository {
   async registerUser(first_name, last_name, email, age, password, cart) {
     return await SessionDAO.registerUser(first_name, last_name, email, age, password, cart);
   }
+  
+  async requestPasswordReset(email) {
+    return await SessionDAO.requestPasswordReset(email);
+  }
+  
+  async resetPassword(token, newPassword) {
+    return await SessionDAO.resetPassword(token, newPassword);
+  }
 }
 
 module.exports = new SessionRepository();

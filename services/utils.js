@@ -86,9 +86,9 @@ const transport = nodemailer.createTransport({
   }
 });
 
-function generateUniqueCode() {
+const generateUniqueCode = () => {
   return uuidv4();
-}
+};
 
 const generateId = (items) => {
   const ids = items.map((i) => i.id);

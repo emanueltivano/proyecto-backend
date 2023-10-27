@@ -9,7 +9,7 @@ class CartRepository {
     return await CartDAO.createCart();
   }
   
-  async addProductToCart(cid, pid) {
+  async addProductToCart(cid, pid, userEmail) {
     return await CartDAO.addProductToCart(cid, pid);
   }
   

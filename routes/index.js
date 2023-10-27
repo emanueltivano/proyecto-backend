@@ -42,6 +42,15 @@ router.get('/login', (req, res) => {
   res.render('login'); // Renderizar la vista de inicio de sesión
 });
 
+router.get('/forgot-password', (req, res) => {
+  res.render('forgotPassword');
+});
+
+router.get('/reset-password', (req, res) => {
+  const token = req.query.token; // Obtén el token de la URL
+  res.render('resetPassword', { token }); // Pasa el token a la vista
+});
+
 router.get('/mockingproducts', async (req, res) => {
   try {
     const mockingProducts = generateMockProducts(50);
@@ -52,7 +61,7 @@ router.get('/mockingproducts', async (req, res) => {
 });
 
 // Ruta para mostrar la vista de productos con paginación
-router.get('/products', authMiddleware, roleMiddleware('user'), async (req, res) => {
+router.get('/products', authMiddleware, roleMiddleware(['user']), async (req, res) => {
   try {
     const { limit = 10, page = 1, sort, query } = req.query;
 
@@ -89,7 +98,18 @@ router.get('/products', authMiddleware, roleMiddleware('user'), async (req, res)
   }
 });
 
-router.get('/cart/:cid', authMiddleware, roleMiddleware('user'), async (req, res) => {
+router.get('/cart/:cid', authMiddleware, roleMiddleware(['user', 'premium']), async (req, res) => {
+  const { cid } = req.params;
+  try {
+    const cart = await CartDAO.getCartById(cid);
+    const totalPrice = calculateTotalPrice(cart);
+    res.render('carts', { user: req.session.user, cart, totalPrice });
+  } catch (error) {
+    res.status(404).send('Cart not found.');
+  }
+});
+
+router.get('/cart/:cid/purchase', authMiddleware, roleMiddleware(['user', 'premium']), async (req, res) => {
   const { cid } = req.params;
   try {
     const cart = await CartDAO.getCartById(cid);
@@ -100,29 +120,18 @@ router.get('/cart/:cid', authMiddleware, roleMiddleware('user'), async (req, res
   }
 });
 
-router.get('/cart/:cid/purchase', authMiddleware, roleMiddleware('user'), async (req, res) => {
-  const { cid } = req.params;
-  try {
-    const cart = await CartDAO.getCartById(cid);
-    const totalPrice = calculateTotalPrice(cart);
-    res.render('carts', { cart, totalPrice });
-  } catch (error) {
-    res.status(404).send('Cart not found.');
-  }
-});
-
-router.get('/chat', authMiddleware, roleMiddleware('user'), (req, res) => {
+router.get('/chat', authMiddleware, roleMiddleware(['user', 'premium']), (req, res) => {
   res.render('chat', {
     user: req.session.user, 
   });
 });
 
-router.get('/realtimeproducts', authMiddleware, roleMiddleware('admin'), async (req, res) => {
+router.get('/realtimeproducts', authMiddleware, roleMiddleware(['admin', 'premium']), async (req, res) => {
   try {
     const products = await ProductDAO.getAllProducts();
     const productsData = products.map((product) => product.toObject());
     const newProduct = {}; // Crear un objeto vacío para newProduct
-    res.render('realTimeProducts', { products: productsData, newProduct }); // Agregar newProduct al contexto
+    res.render('realTimeProducts', { user: req.session.user, products: productsData, newProduct }); // Agregar newProduct al contexto
   } catch (error) {
     res.status(500).json({ status: 500, response: error.message });
   }

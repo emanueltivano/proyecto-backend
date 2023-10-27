@@ -28,7 +28,7 @@ class CartDAO {
     }
   }
 
-  async addProductToCart(cid, pid) {
+  async addProductToCart(cid, pid, userEmail) {
     try {
       const cart = await Cart.findById(cid);
       const product = await Product.findById(pid);
@@ -39,6 +39,11 @@ class CartDAO {
 
       // Verifica si hay suficiente stock antes de agregar el producto al carrito
       if (product.stock > 0) {
+        // Verifica si el producto pertenece al usuario que intenta agregarlo al carrito
+        if (product.owner === userEmail) {
+          throw new Error('Cannot add your own product to the cart.');
+        }
+
         const existingProduct = cart.products.find((p) => p.product && p.product.toString() === pid);
         if (existingProduct) {
           existingProduct.units += 1;

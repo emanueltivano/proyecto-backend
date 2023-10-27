@@ -14,6 +14,10 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Cart'
     },
+    admin: {
+        type: Boolean,
+        default: false
+    },
     role: {
         type: String,
         default: 'user'
@@ -21,6 +25,10 @@ const userSchema = new Schema({
     cart: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart'
+    },
+    premium: {
+        type: Boolean,
+        default: false
     }
 }, {
     versionKey: false

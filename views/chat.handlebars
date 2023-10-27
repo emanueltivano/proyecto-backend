@@ -11,7 +11,11 @@
     <h1>Chat</h1>
     <a href="/profile">Mi perfil</a>
     &nbsp;
+    {{#if user.premium }}
+    <a href="/realtimeproducts">Ir a productos</a>
+    {{else}}
     <a href="/products">Ir a productos</a>
+    {{/if}}
     &nbsp;
     <a href="/cart/{{user.cart}}">Ir al carrito</a>
     &nbsp;

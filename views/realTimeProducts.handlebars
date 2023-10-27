@@ -8,23 +8,41 @@
 </head>
 
 <body>
+    {{#if user.admin}}
     <h1>Administrador de productos:</h1>
     <a href="/profile">Mi perfil</a>
     &nbsp;
     <a href="/api/sessions/logout">Cerrar sesión</a>
     <br>
     <h2>Listado de productos:</h2>
+    {{else}}
+    <h1>¡Bienvenido, {{user.first_name}}!</h1>
+    <a href="/profile">Mi perfil</a>
+    &nbsp;
+    <a href="/cart/{{user.cart}}">Ir al carrito</a>
+    &nbsp;
+    <a href="/chat">Ir al chat</a>
+    &nbsp;
+    <a href="/api/sessions/logout">Cerrar sesión</a>
+    <br>
+    <h2>Listado de productos:</h2>
+    {{/if}}
 
     <!-- Lista de productos existentes -->
     <ul id="product-list">
         {{#each products}}
-        <li>
+        <li id="{{_id}}">
             <h2>{{title}}</h2>
             <p>{{description}}</p>
             <p>Código: {{code}}</p>
             <p>Precio: {{price}}</p>
             <p>Stock: {{stock}}</p>
+            {{#if user.admin}}
             <button onclick="deleteProduct('{{_id}}')">Eliminar</button>
+            {{else}}
+            <button onclick="addToCart('{{_id}}')">Agregar al carrito</button>
+            <button onclick="deleteProduct('{{_id}}')">Eliminar</button>
+            {{/if}}
         </li>
         {{/each}}
     </ul>
@@ -63,6 +81,44 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+
+        const addToCart = (pid) => {
+            let cid = `{{user.cart}}`;
+            try {
+                fetch(`/api/carts/${cid}/products/${pid}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // Enviar un evento de Socket.io para notificar la adición de un producto al carrito
+                            socket.emit('productAdded', { productId: pid });
+                        } else {
+                            console.error('Error al agregar el producto al carrito');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error de red:', error);
+                    });
+            } catch (error) {
+                console.error('Error de red:', error);
+            }
+            // Evitar la recarga de la página
+            event.preventDefault();
+        };
+
+        socket.on('updateStock', (data) => {
+            const productId = data.productId;
+            const newStockValue = data.newStockValue;
+            // Encuentra el elemento de la lista de productos con el ID correspondiente
+            const productElement = document.getElementById(productId);
+            if (productElement) {
+                // Actualiza el contenido del elemento del producto con el nuevo valor del stock
+                productElement.querySelector('.stock').textContent = `Stock: ${newStockValue}`;
+            }
+        });
 
         // Función para mostrar la lista de productos en el cliente
         const showProducts = (products) => {

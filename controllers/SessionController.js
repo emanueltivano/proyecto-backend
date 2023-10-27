@@ -34,8 +34,8 @@ class SessionController {
 
       // Establece la sesión del usuario
       req.session.user = user;
-      
-      if (req.session.user.admin) {
+
+      if (req.session.user.admin || req.session.user.premium) {
         res.redirect('/realtimeproducts')
       } else {
         res.redirect('/products')
@@ -73,6 +73,31 @@ class SessionController {
 
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los datos del usuario" });
+    }
+  }
+
+  async requestPasswordReset(req, res) {
+    const { email } = req.body;
+
+    try {
+      const message = await SessionRepository.requestPasswordReset(email);
+      res.json({ message });
+    } catch (error) {
+      console.error('Error al solicitar restablecimiento de contraseña:', error);
+      res.status(500).json({ error: 'Error al solicitar restablecimiento de contraseña' });
+    }
+  }
+
+  async resetPassword(req, res) {
+    const { token } = req.query;
+    const { newPassword } = req.body;
+
+    try {
+      const message = await SessionRepository.resetPassword(token, newPassword);
+      res.json({ message });
+    } catch (error) {
+      console.error('Error al restablecer la contraseña:', error);
+      res.status(500).json({ error: 'Error al restablecer la contraseña' });
     }
   }
 

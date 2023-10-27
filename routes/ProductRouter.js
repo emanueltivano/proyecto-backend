@@ -7,8 +7,8 @@ const roleMiddleware = require('../middlewares/roleMiddleware')
 // Rutas utilizando controladores
 router.get('/', authMiddleware, ProductController.getAllProducts);
 router.get('/:pid', authMiddleware, ProductController.getProductById);
-router.post('/', authMiddleware, roleMiddleware('admin'), ProductController.createProduct);
-router.put('/:pid', authMiddleware, roleMiddleware('admin'), ProductController.updateProduct);
-router.delete('/:pid', authMiddleware, roleMiddleware('admin'), ProductController.deleteProduct);
+router.post('/', authMiddleware, roleMiddleware(['admin', 'premium']), ProductController.createProduct);
+router.put('/:pid', authMiddleware, roleMiddleware(['admin', 'premium']), ProductController.updateProduct);
+router.delete('/:pid', authMiddleware, roleMiddleware(['admin', 'premium']), ProductController.deleteProduct);
 
 module.exports = router;

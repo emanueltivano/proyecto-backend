@@ -1,14 +1,17 @@
-function roleMiddleware(role) {
+function roleMiddleware(roles) {
     return (req, res, next) => {
-        const isAdmin = req.session.user.admin;
+        const user = req.session.user;
 
-        if (role === 'admin' && isAdmin) {
-            next(); // El cliente tiene el rol de administrador, permite que la solicitud continúe
-        } else if (role === 'user' && !isAdmin) {
-            next() // El cliente tiene el rol de usuario, permite que la solicitud continúe
+        if (roles.includes('admin') && user.admin) {
+            next();
+        } else if (roles.includes('premium') && user.premium) {
+            next();
+        } else if (roles.includes('user') && user.role === 'user') {
+           next();
         } else {
-            res.redirect('/profile'); // Redirige a la página de perfil si el cliente no tiene permisos
+            res.redirect('/profile');
         }
+
     };
 }
 
