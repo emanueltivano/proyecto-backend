@@ -20,6 +20,7 @@ function setupChangeStreams() {
   stockChangeStream.on('change', async (change) => {
     try {
       const updatedProduct = await ProductModel.findById(change.documentKey._id);
+      console.log(`Stock actualizado para el producto ${updatedProduct._id}: ${updatedProduct.stock}`);
       io.emit('updateStock', {
         productId: updatedProduct._id,
         newStockValue: updatedProduct.stock

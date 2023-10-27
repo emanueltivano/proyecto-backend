@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const CartDAO = require('../DAO/mongodb/CartDAO');
 const ProductDAO = require('../DAO/mongodb/ProductDAO');
+const SessionDAO = require('../DAO/mongodb/SessionDAO');
 
 const CartRouter = require('./CartRouter');
 const ProductRouter = require('./ProductRouter');
@@ -151,5 +152,26 @@ router.get('/sms', authMiddleware, async (req, res) => {
   })
   res.send({ status: "success", response: "Se envió correctamente el mensaje." });
 })
+
+// Ruta para cambiar el rol de un usuario a premium y viceversa
+router.post('/api/users/premium/:uid', async (req, res) => {
+  const { uid } = req.params;
+
+  try {
+    const user = await SessionDAO.getUserById(uid);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    user.role = user.role === 'user' ? 'premium' : 'user';
+    user.premium = user.premium === false ? true : false;
+
+    await user.save();
+    res.json({ status: 200, response: user });
+  } catch (error) {
+    res.status(500).json({ status: 500, response: error.message });
+  }
+});
 
 module.exports = router;

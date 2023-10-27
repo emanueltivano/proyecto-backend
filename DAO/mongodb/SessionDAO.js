@@ -17,6 +17,8 @@ class SessionDAO {
             age,
             password: hashedPassword,
             role: 'user',
+            admin: false,
+            premium: false,
             cart: newCart._id
         };
         if (email === config.adminEmail && password === config.adminPassword) {
@@ -54,7 +56,7 @@ class SessionDAO {
 
             if (email === config.adminEmail && password === config.adminPassword) {
                 user.admin = true;
-                user.role = 'administrador';
+                user.role = 'admin';
                 await user.save();
             }
 

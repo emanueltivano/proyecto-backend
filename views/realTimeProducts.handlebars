@@ -37,7 +37,7 @@
             <p>Código: {{code}}</p>
             <p>Precio: {{price}}</p>
             <p>Stock: {{stock}}</p>
-            {{#if user.admin}}
+            {{#if ../user.admin}}
             <button onclick="deleteProduct('{{_id}}')">Eliminar</button>
             {{else}}
             <button onclick="addToCart('{{_id}}')">Agregar al carrito</button>
@@ -110,13 +110,12 @@
         };
 
         socket.on('updateStock', (data) => {
-            const productId = data.productId;
-            const newStockValue = data.newStockValue;
+            console.log(`Actualizando stock para el producto ${data.productId} a ${data.newStockValue}`);
             // Encuentra el elemento de la lista de productos con el ID correspondiente
-            const productElement = document.getElementById(productId);
+            const productElement = document.getElementById(data.productId);
             if (productElement) {
                 // Actualiza el contenido del elemento del producto con el nuevo valor del stock
-                productElement.querySelector('.stock').textContent = `Stock: ${newStockValue}`;
+                productElement.querySelector('.stock').textContent = `Stock: ${data.newStockValue}`;
             }
         });
 
@@ -133,7 +132,12 @@
                 <p>Código: ${product.code}</p>
                 <p>Precio: ${product.price}</p>
                 <p>Stock: ${product.stock}</p>
-                <button onclick="deleteProduct('{{product._id}}')">Eliminar</button>
+                {{#if ../user.admin}}
+                <button onclick="deleteProduct('{{_id}}')">Eliminar</button>
+                {{else}}
+                <button onclick="addToCart('{{_id}}')">Agregar al carrito</button>
+                <button onclick="deleteProduct('{{_id}}')">Eliminar</button>
+                {{/if}}
             `;
                 productList.appendChild(productItem);
             });
@@ -178,7 +182,6 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    // Manejar la respuesta si es necesario
                 })
                 .catch(error => console.error('Error deleting product:', error));
         }
