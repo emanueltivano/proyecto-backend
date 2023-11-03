@@ -1,0 +1,92 @@
+openapi: 3.0.0
+info:
+  title: Rutas de Productos
+  version: 1.0.0
+paths:
+  /products:
+    get:
+      summary: Obtiene todos los productos
+      responses:
+        '200':
+          description: Lista de productos
+    post:
+      summary: Crea un nuevo producto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Título del producto (requerido)
+                description:
+                  type: string
+                  description: Descripción del producto (requerido)
+                code:
+                  type: string
+                  description: Código del producto (requerido)
+                price:
+                  type: number
+                  format: double
+                  description: Precio del producto (requerido)
+                stock:
+                  type: integer
+                  description: Stock del producto (requerido)
+                category:
+                  type: string
+                  description: Categoría del producto (requerido)
+      responses:
+        '201':
+          description: Producto creado correctamente
+    put:
+      summary: Actualiza un producto por ID
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Nuevo título del producto
+                description:
+                  type: string
+                  description: Nueva descripción del producto
+                code:
+                  type: string
+                  description: Nuevo código del producto
+                price:
+                  type: number
+                  format: double
+                  description: Nuevo precio del producto
+                stock:
+                  type: integer
+                  description: Nuevo stock del producto
+                category:
+                  type: string
+                  description: Nueva categoría del producto
+      responses:
+        '200':
+          description: Producto actualizado correctamente
+    delete:
+      summary: Elimina un producto por ID
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          description: ID del producto
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Producto eliminado correctamente

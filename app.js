@@ -10,6 +10,7 @@ const initializePassport = require('./config/passport.config');
 const setupChangeStreams = require('./services/changeStreams');
 const { errorHandler } = require("./services/utils");
 const { logger, loggerMiddleware } = require('./services/logger');
+const { swaggerUi, swaggerSpec } = require('./config/swagger.config');
 
 const app = express();
 app.use(express.json());
@@ -60,5 +61,6 @@ mongoose.connect(config.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: t
 
 app.use('/', indexRouter);
 app.use(errorHandler);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 module.exports = app;
