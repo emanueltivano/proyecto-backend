@@ -74,7 +74,7 @@
         async function deleteAllProducts() {
             let cid = `{{cart._id}}`;
             try {
-                const response = await fetch(`/api/carts/${cid}`, {
+                const response = await fetch(`/api/carts/${cid}/products`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'

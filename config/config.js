@@ -10,6 +10,8 @@ module.exports = {
     callbackUrl: process.env.CALLBACK_URL,
     adminEmail: process.env.ADMIN_EMAIL,
     adminPassword: process.env.ADMIN_PASSWORD,
+    testUserEmail: process.env.TEST_USER_EMAIL,
+    testUserPassword: process.env.TEST_USER_PASSWORD,
     gmailUser: process.env.GMAIL_USER,
     gmailPassword: process.env.GMAIL_PASSWORD,
     twilioSid: process.env.TWILIO_ACCOUNT_SID,

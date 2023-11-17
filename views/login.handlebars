@@ -9,7 +9,7 @@
 
 <body>
     <h1>Iniciar sesión</h1>
-    <form action="/api/sessions/login" method="POST">
+    <form id="loginForm" action="/api/sessions/login" method="POST">
         <div>
             <label for="email">Email:</label>
             <input type="email" name="email" required>
@@ -30,6 +30,38 @@
     <br>
     <br>
     <a href="/api/sessions/github">Ingresar con GitHub</a>
+
+    <script>
+        // Manejar la respuesta del formulario
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementsByName('email')[0].value;
+            const password = document.getElementsByName('password')[0].value;
+
+            try {
+                const response = await fetch('/api/sessions/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Redirigir a la URL proporcionada en redirectUrl
+                    window.location.href = data.redirectUrl || '/';  // Puedes proporcionar una URL por defecto si no hay redirectUrl
+                } else {
+                    // Mostrar un mensaje de error o realizar acciones adicionales si el inicio de sesión falla
+                    console.error(data.error || 'Error desconocido');
+                }
+            } catch (error) {
+                console.error('Error al enviar la solicitud:', error);
+            }
+        });
+    </script>
 </body>
 
 </html>

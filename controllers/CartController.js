@@ -53,8 +53,7 @@ class CartController {
   }
 
   async updateProductUnits(req, res) {
-    const { cid, pid } = req.params;
-    const { units } = req.body;
+    const { cid, pid, units } = req.params;
     try {
       const cart = await CartRepository.updateProductUnits(cid, pid, units);
       res.json({ status: 200, response: cart });

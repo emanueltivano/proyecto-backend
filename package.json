@@ -4,7 +4,7 @@
   "description": "Este es un proyecto hecho para el curso de Programación Backend de Coderhouse. El objetivo de este proyecto es crear el backend para un e-commerce.",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --timeout 100000 test/ProductRouter.test.js test/CartRouter.test.js test/SessionRouter.test.js",
     "start": "nodemon server.js"
   },
   "author": "Emanuel Tivano",
@@ -33,5 +33,11 @@
     "twilio": "^4.18.0",
     "uuid": "^9.0.1",
     "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3"
   }
 }

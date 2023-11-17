@@ -24,7 +24,7 @@ class SessionController {
       const result = await SessionRepository.loginUser(email, password);
 
       if (!result) {
-        return res.status(401).json({ error: "Credenciales incorrectas" });
+        return res.status(401).json({ success: false, error: "Credenciales incorrectas" });
       }
 
       const { user, token } = result;
@@ -35,13 +35,16 @@ class SessionController {
       // Establece la sesión del usuario
       req.session.user = user;
 
+      let redirectUrl;
       if (req.session.user.admin || req.session.user.premium) {
-        res.redirect('/realtimeproducts')
+        redirectUrl = '/realtimeproducts';
       } else {
-        res.redirect('/products')
+        redirectUrl = '/products';
       }
+
+      res.status(200).json({ success: true, redirectUrl });
     } catch (error) {
-      res.status(500).json({ error: "Error al iniciar sesión" });
+      res.status(500).json({ success: false, error: "Error al iniciar sesión" });
     }
   }
 
@@ -69,8 +72,7 @@ class SessionController {
       const userDTO = new UserDTO(user);
 
       // Devuelve el DTO del usuario
-      res.json(userDTO);
-
+      res.status(200).json(userDTO);
     } catch (error) {
       res.status(500).json({ error: "Error al obtener los datos del usuario" });
     }
