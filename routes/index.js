@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const CartDAO = require('../DAO/mongodb/CartDAO');
 const ProductDAO = require('../DAO/mongodb/ProductDAO');
-const SessionDAO = require('../DAO/mongodb/SessionDAO');
 
 const CartRouter = require('./CartRouter');
 const ProductRouter = require('./ProductRouter');
 const SessionRouter = require('./SessionRouter');
+const UserRouter = require('./UserRouter');
 
 const twilio = require('twilio');
 const config = require('../config/config')
@@ -20,6 +20,7 @@ router.use(cookieParser());
 router.use('/api/sessions', SessionRouter);
 router.use('/api/products', ProductRouter);
 router.use('/api/carts', CartRouter);
+router.use('/api/users', UserRouter);
 
 router.get('/loggerTest', (req, res) => {
   logger.debug('Este es un mensaje de debug');
@@ -152,26 +153,5 @@ router.get('/sms', authMiddleware, async (req, res) => {
   })
   res.send({ status: "success", response: "Se envió correctamente el mensaje." });
 })
-
-// Ruta para cambiar el rol de un usuario a premium y viceversa
-router.post('/api/users/premium/:uid', async (req, res) => {
-  const { uid } = req.params;
-
-  try {
-    const user = await SessionDAO.getUserById(uid);
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found.' });
-    }
-
-    user.role = user.role === 'user' ? 'premium' : 'user';
-    user.premium = user.premium === false ? true : false;
-
-    await user.save();
-    res.json({ status: 200, response: user });
-  } catch (error) {
-    res.status(500).json({ status: 500, response: error.message });
-  }
-});
 
 module.exports = router;

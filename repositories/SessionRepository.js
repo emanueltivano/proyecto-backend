@@ -20,6 +20,10 @@ class SessionRepository {
   async resetPassword(token, newPassword) {
     return await SessionDAO.resetPassword(token, newPassword);
   }
+  
+  async updateLastConnection(userId, lastConnection) {
+    return await SessionDAO.resetPassword(userId, lastConnection);
+  }
 }
 
 module.exports = new SessionRepository();

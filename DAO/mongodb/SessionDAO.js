@@ -153,6 +153,32 @@ class SessionDAO {
             throw new Error("Error al restablecer la contraseña: " + error.message);
         }
     }
+
+    async updateLastConnection(userId, lastConnection) {
+        try {
+            const user = await UserModel.findById(userId);
+            if (user) {
+                user.last_connection = lastConnection;
+                await user.save();
+            }
+        } catch (error) {
+            console.error('Error updating last connection:', error);
+            throw new Error('Error updating last connection');
+        }
+    }
+    
+    async updateUserDocuments(userId, documents) {
+        try {
+            const user = await UserModel.findById(userId);
+            if (user) {
+                user.documents = documents;
+                await user.save();
+            }
+        } catch (error) {
+            console.error('Error updating user documents:', error);
+            throw new Error('Error updating user documents');
+        }
+    }
 }
 
 module.exports = new SessionDAO();

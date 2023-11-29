@@ -24,16 +24,15 @@ class SessionController {
       const result = await SessionRepository.loginUser(email, password);
 
       if (!result) {
-        return res.status(401).json({ success: false, error: "Credenciales incorrectas" });
+        return res.status(401).json({ success: false, error: 'Incorrect credentials' });
       }
 
       const { user, token } = result;
 
-      // Establece el token JWT como una cookie
-      res.cookie("jwt", token, { httpOnly: true });
+      res.cookie('jwt', token, { httpOnly: true });
 
-      // Establece la sesión del usuario
       req.session.user = user;
+      await SessionDAO.updateLastConnection(user._id, new Date());
 
       let redirectUrl;
       if (req.session.user.admin || req.session.user.premium) {
@@ -44,7 +43,7 @@ class SessionController {
 
       res.status(200).json({ success: true, redirectUrl });
     } catch (error) {
-      res.status(500).json({ success: false, error: "Error al iniciar sesión" });
+      res.status(500).json({ success: false, error: 'Error logging in' });
     }
   }
 
@@ -103,10 +102,26 @@ class SessionController {
     }
   }
 
+  async updateUserDocuments(req, res) {
+    const { uid } = req.params;
+    const { documents } = req.body;
+
+    try {
+      await SessionRepository.updateUserDocuments(uid, documents);
+      res.json({ status: 200, response: 'User documents updated successfully.' });
+    } catch (error) {
+      res.status(500).json({ status: 500, response: 'Error updating user documents.' });
+    }
+  }
+
   logout(req, res) {
+    const userId = req.session.user._id;
+
     res.clearCookie('jwt');
     req.session.destroy();
-    res.redirect('/login');
+    SessionRepository.updateLastConnection(userId, new Date()).then(() => {
+      res.redirect('/login');
+    });
   }
 
   githubLogin(req, res) {
