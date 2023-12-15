@@ -3,6 +3,7 @@ const { countProducts, getProducts } = require('../services/utils');
 const Errors = require('../services/errors/Errors');
 const CustomError = require('../services/errors/CustomError');
 const GenerateProductError = require('../services/errors/info');
+const { transport } = require('../services/utils');
 
 class ProductController {
   async getAllProducts(req, res) {
@@ -64,10 +65,10 @@ class ProductController {
 
   async createProduct(req, res) {
     const newProductData = req.body;
-    
+
     // Obtener el correo electrónico del usuario autenticado
     const owner = req.session.user.email;
-  
+
     // Verificar si los datos del producto son válidos
     if (!newProductData.title || !newProductData.description || !newProductData.code || !newProductData.price || !newProductData.stock || !newProductData.category) {
       const errorMessage = GenerateProductError(newProductData);
@@ -79,10 +80,10 @@ class ProductController {
       });
       return res.status(400).json({ status: 400, error: error.message });
     }
-  
+
     // Agregar el campo "owner" al objeto de datos del producto
     newProductData.owner = owner || "admin";
-  
+
     try {
       // Crear el producto con el campo "owner"
       const newProduct = await ProductRepository.createProduct(newProductData);
@@ -118,10 +119,36 @@ class ProductController {
 
       // Verificar si el usuario es un usuario premium y si el producto le pertenece
       if (user.role === 'premium' && product.owner === user.email) {
+
         const deletedProduct = await ProductRepository.deleteProduct(pid);
+
+        // Envía un correo electrónico al usuario premium informándole que su producto fue eliminado
+        await transport.sendMail({
+          from: 'Ecommerce <correoenvios@example.com>',
+          to: email,
+          subject: "Eliminación de producto",
+          html: `
+          <div>
+            <h1>¡Tu producto "${product.name}" ha sido eliminado. Si tienes alguna pregunta, por favor contáctanos.</h1>
+          </div>
+          `,
+          attachments: []
+        });
+
         return res.json({ status: 200, response: deletedProduct });
       } else if (user.role === 'admin') {
         // Si el usuario es un administrador, permitir la eliminación del producto sin importar el owner
+        await transport.sendMail({
+          from: 'Ecommerce <correoenvios@example.com>',
+          to: product.owner,
+          subject: "Eliminación de producto",
+          html: `
+          <div>
+            <h1>¡Tu producto "${product.name}" ha sido eliminado. Si tienes alguna pregunta, por favor contáctanos.</h1>
+          </div>
+          `,
+          attachments: []
+        });
         const deletedProduct = await ProductRepository.deleteProduct(pid);
         res.json({ status: 200, response: deletedProduct });
       } else {

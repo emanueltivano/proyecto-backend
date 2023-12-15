@@ -22,7 +22,7 @@ class SessionRepository {
   }
   
   async updateLastConnection(userId, lastConnection) {
-    return await SessionDAO.resetPassword(userId, lastConnection);
+    return await SessionDAO.updateLastConnection(userId, lastConnection);
   }
 }
 

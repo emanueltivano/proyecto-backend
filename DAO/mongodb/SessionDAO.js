@@ -80,15 +80,6 @@ class SessionDAO {
         }
     }
 
-    async getUserById(userId) {
-        try {
-            const user = await UserModel.findById(userId);
-            return user;
-        } catch (error) {
-            throw new Error("Error al obtener los datos del usuario");
-        }
-    }
-
     async requestPasswordReset(email) {
         try {
             const user = await UserModel.findOne({ email });

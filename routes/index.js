@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const UserDAO = require('../DAO/mongodb/UserDAO');
 const CartDAO = require('../DAO/mongodb/CartDAO');
 const ProductDAO = require('../DAO/mongodb/ProductDAO');
 
@@ -122,10 +123,18 @@ router.get('/cart/:cid/purchase', authMiddleware, roleMiddleware(['user', 'premi
   }
 });
 
+router.get('/users', authMiddleware, roleMiddleware(['admin']), async (req, res) => {
+  try {
+    const users = await UserDAO.getAllUsers();
+
+    res.render('users', { users:  users });
+  } catch (error) {
+    res.status(500).json({ status: 500, response: error.message });
+  }
+});
+
 router.get('/chat', authMiddleware, roleMiddleware(['user', 'premium']), (req, res) => {
-  res.render('chat', {
-    user: req.session.user, 
-  });
+  res.render('chat', { user: req.session.user });
 });
 
 router.get('/realtimeproducts', authMiddleware, roleMiddleware(['admin', 'premium']), async (req, res) => {

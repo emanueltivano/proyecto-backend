@@ -1,6 +1,7 @@
 const passport = require('passport');
 const UserDTO = require('../DTO/UserDTO');
 const SessionRepository = require('../repositories/SessionRepository');
+const SessionDAO = require('../DAO/mongodb/SessionDAO');
 const { verifyToken } = require('../services/utils');
 
 class SessionController {

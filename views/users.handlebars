@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios</title>
+</head>
+
+<body>
+    <h1>Administrador de usuarios:</h1>
+    <a href="/profile">Mi perfil</a>
+    &nbsp;
+    <a href="/realtimeproducts">Ir a productos</a>
+    &nbsp;
+    <a href="/api/sessions/logout">Cerrar sesión</a>
+    <br>
+    <h2>Listado de usuarios:</h2>
+
+    <button onclick="deleteInactiveUsers()">Eliminar usuarios inactivos</button>
+
+    <ul>
+        {{#each users}}
+        <li>
+            <h3>{{first_name}} {{last_name}}</h3>
+            <p>Email: {{email}}</p>
+            <p>Role: {{role}}</p>
+            <p>Last connection: {{last_connection}}</p>
+            <form method="post" action="/api/users/{{_id}}/edit" style="display:inline;">
+                <select name="role">
+                    <option value="user" {{#if (eq role 'user' )}}selected{{/if}}>Usuario</option>
+                    <option value="premium" {{#if (eq role 'premium' )}}selected{{/if}}>Premium</option>
+                    <option value="admin" {{#if (eq role 'admin' )}}selected{{/if}}>Admin</option>
+                </select>
+                <button type="submit">Actualizar Rol</button>
+            </form>
+            <br>
+            <br>
+            <form method="post" action="/api/users/{{_id}}/delete" style="display:inline;">
+                <button type="submit">Eliminar Usuario</button>
+            </form>
+        </li>
+        <br>
+        {{/each}}
+    </ul>
+    <script>
+        async function deleteInactiveUsers() {
+            try {
+                const response = await fetch('/api/users/', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    location.reload(); // Recarga la página para mostrar la lista actualizada
+                } else {
+                    const data = await response.json();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al eliminar usuarios inactivos.');
+            }
+        }
+    </script>
+</body>
+
+</html>

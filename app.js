@@ -12,18 +12,21 @@ const { errorHandler } = require("./services/utils");
 const { logger, loggerMiddleware } = require('./services/logger');
 const { swaggerUi, swaggerSpec } = require('./config/swagger.config');
 
+// Importa el módulo handlebars-helpers
+const handlebarsHelpers = require('handlebars-helpers')();
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const persistance = "mongodb"
+const persistance = "mongodb";
 
-let url = ''
+let url = '';
 
 if (persistance === "mongodb") {
-  url = './routes/index'
-} else if ((persistance === "filesystem")) {
-  url = './DAO/filesystem/index'
+  url = './routes/index';
+} else if (persistance === "filesystem") {
+  url = './DAO/filesystem/index';
 }
 
 const indexRouter = require(url);
@@ -47,6 +50,10 @@ app.use(passport.initialize());
 app.use(cors({ origin: `http://localhost:${config.port}`, methods: ['GET', 'POST', 'PUT', 'DELETE'] }));
 
 const hbs = exphbs.create({ defaultLayout: 'main' });
+
+// Registra handlebars-helpers con el motor handlebars
+hbs.handlebars.registerHelper(handlebarsHelpers);
+
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
